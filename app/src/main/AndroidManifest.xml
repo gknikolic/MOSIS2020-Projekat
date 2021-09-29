@@ -9,6 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FindPet">
+        <activity android:name=".GetStartedActivity"/>
+        <activity android:name=".LoginActivity"
+            android:parentActivityName=".GetStartedActivity"/>
+        <activity android:name=".RegisterActivity"
+            android:parentActivityName=".GetStartedActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
