@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">FindPet</string>
     <string name="action_settings">Settings</string>
-    <string name="welcome_to_findpet">Welcome To FindPet</string>
+    <string name="welcome_to_findpet">Welcome</string>
     <string name="register">Register</string>
     <string name="login">LogIn</string>
     <string name="log_out">Log out</string>
