@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "242613509214",
+    "project_id": "findpet2-3077c",
+    "storage_bucket": "findpet2-3077c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242613509214:android:e97ac937e4adf6324268cf",
+        "android_client_info": {
+          "package_name": "rs.elfak.findpet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "242613509214-jo5dbc3ul3kuapk1m0editg7h7j3j4r9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1WhoZ4767_PJYIMkP82VdEOvXbM_8NEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "242613509214-jo5dbc3ul3kuapk1m0editg7h7j3j4r9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
