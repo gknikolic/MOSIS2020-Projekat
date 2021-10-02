@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String FIREBASE_CHILD = "users";
     private FirebaseAuth mAuth;
     private DatabaseReference dbReference;
-    private boolean isTaken;
+    public static boolean isTaken = false;
     SharedPreferences sharedPreferences;
 
     @Override
@@ -85,8 +85,9 @@ public class RegisterActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         if(checkFieldsValues()){
             checkIfUsernameIsTaken(username);
-            if (isTaken) {
+            if (RegisterActivity.isTaken) {
                 Toast.makeText(getApplicationContext(), "Registration failed! Username is already taken", Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.GONE);
                 return;
             }
             mAuth.createUserWithEmailAndPassword(email, password)
@@ -94,8 +95,8 @@ public class RegisterActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-                                Toast.makeText(getApplicationContext(), "Registration successful!", Toast.LENGTH_LONG).show();
                                 progressBar.setVisibility(View.GONE);
+                                Toast.makeText(getApplicationContext(), "Registration successful!", Toast.LENGTH_LONG).show();
                                 User newUser = new User(username, email, phoneNumber);
                                 newUser.key  = mAuth.getCurrentUser().getUid();
                                 UsersData.getInstance().addNewUser(newUser);
@@ -125,8 +126,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void checkIfUsernameIsTaken(String username) {
-        //        TODO: CHECK IF USERNAME ALREADY EXISTS!!!
-        isTaken = false;
+        RegisterActivity.isTaken = false;
         Query query = dbReference.child("users")
                 .orderByChild("username")
                 .equalTo(username);
@@ -135,7 +135,8 @@ public class RegisterActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for(DataSnapshot ds: snapshot.getChildren()){
                     if(username.equals(ds.getValue(User.class).username)) {
-                        isTaken = true;
+                        RegisterActivity.isTaken = true;
+                        Log.i(TAG, "taken true");
                     }
                 }
             }
@@ -144,6 +145,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
         });
+        Log.i(TAG, Boolean.toString(RegisterActivity.isTaken));
     }
 
     private boolean checkFieldsValues() {
@@ -155,18 +157,27 @@ public class RegisterActivity extends AppCompatActivity {
         phoneNumber = phoneNumEditText.getText().toString();
         if (TextUtils.isEmpty(password) || TextUtils.isEmpty(repeatPassword)) {
             Toast.makeText(getApplicationContext(), "Please enter password and repeat it.", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.GONE);
             return false;
         }
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplicationContext(), "Please enter email.", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.GONE);
             return false;
         }
-        if(TextUtils.isEmpty(username) || TextUtils.isEmpty(phoneNumber)){
-            Toast.makeText(getApplicationContext(), "Please enter Username and Phone Number.", Toast.LENGTH_LONG).show();
+        if(TextUtils.isEmpty(username)){
+            Toast.makeText(getApplicationContext(), "Please enter Username.", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.GONE);
+            return false;
+        }
+        if(TextUtils.isEmpty(phoneNumber)){
+            Toast.makeText(getApplicationContext(), "Please enter Phone Number.", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.GONE);
             return false;
         }
         if(!password.equals(repeatPassword)){
             Toast.makeText(getApplicationContext(), "Password and repeated password don't match. Try Again.", Toast.LENGTH_LONG).show();
+            progressBar.setVisibility(View.GONE);
             return false;
         }
         return true;

@@ -148,8 +148,10 @@ public class UsersData {
 
     public void updateLocation(Location lastLocation) {
         if (!currentUserUID.equals("")) {
-            dbReference.child("users").child(currentUserUID).child("Latitude").setValue(String.valueOf(lastLocation.getLatitude()));
-            dbReference.child("users").child(currentUserUID).child("Longitude").setValue(String.valueOf(lastLocation.getLongitude()));
+            dbReference.child("users").child(currentUserUID).child("Latitude")
+                    .setValue(String.valueOf(lastLocation.getLatitude()));
+            dbReference.child("users").child(currentUserUID).child("Longitude")
+                    .setValue(String.valueOf(lastLocation.getLongitude()));
         }
     }
 
@@ -205,4 +207,7 @@ public class UsersData {
         updateListener = listener;
     }
 
+    public User getCurrentLogedUser(){
+        return getUser(currentUserUID);
+    }
 }
