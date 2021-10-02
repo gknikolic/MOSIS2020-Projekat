@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.FindPet"
     tools:context=".LoginActivity">
 
     <ImageView
@@ -22,8 +23,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/login"
-        android:textSize="50sp"
         android:textColor="@color/white"
+        android:textSize="50sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="@+id/imageView"
         app:layout_constraintHorizontal_bias="0.495"
@@ -47,35 +48,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Account login"
+            android:textColor="@color/design_default_color_on_primary"
             tools:layout_editor_absoluteX="3dp"
-            tools:layout_editor_absoluteY="340dp"
-            android:textColor="@color/design_default_color_primary"/>
+            tools:layout_editor_absoluteY="340dp" />
 
         <EditText
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            tools:layout_editor_absoluteX="54dp"
-            tools:layout_editor_absoluteY="366dp"
-            android:background="@drawable/round_input"
             android:layout_marginTop="8dp"
+            android:background="@drawable/round_input"
+            android:hint="Email"
             android:textColor="@color/design_default_color_primary"
-            android:textColorHint="@color/design_default_color_primary"/>
+            android:textColorHint="@color/design_default_color_primary"
+            tools:layout_editor_absoluteX="54dp"
+            tools:layout_editor_absoluteY="366dp" />
 
         <EditText
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
-            android:inputType="textPassword"
-            tools:layout_editor_absoluteX="64dp"
-            tools:layout_editor_absoluteY="420dp"
-            android:background="@drawable/round_input"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
+            android:background="@drawable/round_input"
+            android:hint="Password"
+            android:inputType="textPassword"
             android:textColor="@color/design_default_color_primary"
-            android:textColorHint="@color/design_default_color_primary"/>
+            android:textColorHint="@color/design_default_color_primary"
+            tools:layout_editor_absoluteX="64dp"
+            tools:layout_editor_absoluteY="420dp" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -87,10 +88,10 @@
             android:id="@+id/login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/login"
-            android:background="@drawable/round_button"/>
+            android:background="@drawable/round_button"
+            android:textColor="@color/design_default_color_on_primary"
+            android:text="@string/login" />
     </LinearLayout>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.FindPet"
     tools:context=".RegisterActivity">
 
     <ImageView
@@ -22,8 +23,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/register"
-        android:textSize="50sp"
         android:textColor="@color/white"
+        android:textSize="50sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView"
         app:layout_constraintEnd_toEndOf="@+id/imageView"
         app:layout_constraintHorizontal_bias="0.495"
@@ -56,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/register_new_account"
-            android:textColor="@color/design_default_color_primary" />
+            android:textColor="@color/design_default_color_on_primary" />
 
         <EditText
             android:id="@+id/username_reg"
@@ -116,7 +117,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/round_button"
-            android:text="Register" />
+            android:text="Register"
+            android:textColor="@color/design_default_color_on_primary"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

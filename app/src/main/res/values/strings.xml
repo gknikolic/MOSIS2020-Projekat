@@ -10,7 +10,7 @@
     <string name="email">Email</string>
     <string name="username">Username</string>
     <string name="phone_number">Phone Number</string>
-    <string name="register_new_account">Register new account</string>
+    <string name="register_new_account">Register new user</string>
     <string name="dashboard">Dashboard</string>
     <string name="map">Map</string>
     <string name="message">Messages</string>
