@@ -36,7 +36,6 @@ public class UsersData {
     private UsersListEventListener updateListener;
     private String currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-    private final Object lock = new Object();
 
     private final ChildEventListener childEventListener = new ChildEventListener() {
         @Override
@@ -148,9 +147,9 @@ public class UsersData {
 
     public void updateLocation(Location lastLocation) {
         if (!currentUserUID.equals("")) {
-            dbReference.child("users").child(currentUserUID).child("Latitude")
+            dbReference.child("users").child(currentUserUID).child("latitude")
                     .setValue(String.valueOf(lastLocation.getLatitude()));
-            dbReference.child("users").child(currentUserUID).child("Longitude")
+            dbReference.child("users").child(currentUserUID).child("longitude")
                     .setValue(String.valueOf(lastLocation.getLongitude()));
         }
     }

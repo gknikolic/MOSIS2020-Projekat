@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -21,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DatabaseReference;
@@ -32,7 +34,7 @@ import rs.elfak.findpet.Services.UserLocationService;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final int PERMISSION_ACCESS_FINE_LOCATION = 100;
+    private static final int PERMISSION_ACCESS_LOCATION = 100;
     private SharedPreferences sharedPreferences;
     private DrawerLayout drawer;
 
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             finish();
         }
 
-        this.checkLocationPermission();
+        this.startLocationService();
         this.registerLogOutBroadcastReceiver();
     }
 
@@ -109,37 +111,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    void checkLocationPermission() {
+    void startLocationService() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_ACCESS_FINE_LOCATION);
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    PERMISSION_ACCESS_LOCATION
+            );
         } else {
-            Intent service = new Intent(getApplicationContext(), UserLocationService.class);
-            service.putExtra("useGps", true);
-            if(isMyServiceRunning(UserLocationService.class)) {
-                stopService(service);
-                startService(service);
-            } else
-                startService(service);
+            startService();
         }
     }
 
-    public boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
+    public void startService(){
+        Intent service = new Intent(getApplicationContext(), UserLocationService.class);
+        service.putExtra("useGps", false);
+        ContextCompat.startForegroundService(this, service);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == PERMISSION_ACCESS_FINE_LOCATION){
-            if(!(grantResults[0] == PackageManager.PERMISSION_GRANTED) || !(grantResults[1] == PackageManager.PERMISSION_GRANTED)){
-                checkLocationPermission();
+        if(requestCode == PERMISSION_ACCESS_LOCATION){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                startLocationService();
+            }
+            else{
+                Toast.makeText(
+                        this,
+                        "To use location you must grant location permissions",
+                        Toast.LENGTH_LONG
+                );
             }
         }
     }

@@ -10,6 +10,7 @@ public class User {
     public String email;
     public String latitude;
     public String longitude;
+    public boolean locationEnabled;
     public int totalPoints;
     @Exclude
     public String key;
@@ -25,6 +26,7 @@ public class User {
         this.latitude = "";
         this.longitude = "";
         this.totalPoints = 0;
+        this.locationEnabled = true; //todo change to false!!!!
     }
 
 }
