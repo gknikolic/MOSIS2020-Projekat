@@ -74,6 +74,8 @@ public class LoginActivity extends AppCompatActivity {
                             progressBar.setVisibility(View.GONE);
                             Log.i(TAG, mAuth.getCurrentUser().getUid());
                             sharedPreferences.edit().putBoolean("isLogged", true).apply();
+                            sharedPreferences.edit().putString("email", email);
+                            //TODO put user id in sharedPreferences
                             Intent intent = new Intent(rs.elfak.findpet.LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
