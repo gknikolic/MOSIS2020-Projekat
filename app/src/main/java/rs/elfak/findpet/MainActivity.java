@@ -30,18 +30,24 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 
+import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.Services.UserLocationService;
+import rs.elfak.findpet.data_models.User;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int PERMISSION_ACCESS_LOCATION = 100;
     private SharedPreferences sharedPreferences;
     private DrawerLayout drawer;
+    private User currentUser;
+    private UsersData usersDataReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        usersDataReference = UsersData.getInstance();
+//        currentUser = usersDataReference.getCurrentLogedUser();
         InitSideBar(savedInstanceState);
 
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
@@ -56,8 +62,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void InitSideBar(Bundle savedInstanceState) {
-//        TextView username = (TextView)findViewById(R.id.nav_header_username);
-//        username.setText(sharedPreferences.getString("email", "email address of user"));
+        TextView username = (TextView)findViewById(R.id.nav_header_username);
+//        if(currentUser != null) username.setText(currentUser.username);
+
+        TextView locationServiceStatus = (TextView)findViewById(R.id.nav_header_location_service_status);
+//        locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
