@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.data_models.Post;
 
@@ -34,7 +35,41 @@ public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        //header
+        holder.userImage.setImageBitmap(posts.get(position).userImage);
         holder.userName.setText(posts.get(position).userName);
+        holder.timestamp.setText(Helpers.formatDate(posts.get(position).timestamp));
+
+        //post details
+        holder.postText.setText(posts.get(position).text);
+        holder.postImage.setImageBitmap(posts.get(position).postImage);
+
+        //buttons and clickable elements
+        holder.btnCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        holder.btnMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        holder.btnShowOnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        holder.profileCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO delegate to user profile review
+            }
+        });
+
     }
 
     @Override

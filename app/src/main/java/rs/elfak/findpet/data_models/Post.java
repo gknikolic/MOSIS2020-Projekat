@@ -9,7 +9,7 @@ public class Post {
     public String userName;
     public Date timestamp;
     public Bitmap userImage;
-    public String message;
+    public String text;
     public Bitmap postImage;
     public String phoneNumber;
     public Location location;
@@ -18,10 +18,10 @@ public class Post {
 
     }
 
-    public Post(Date timestamp, Bitmap userImage, String message, Bitmap postImage, String phoneNumber, Location location) {
+    public Post(Date timestamp, Bitmap userImage, String text, Bitmap postImage, String phoneNumber, Location location) {
         this.timestamp = timestamp;
         this.userImage = userImage;
-        this.message = message;
+        this.text = text;
         this.postImage = postImage;
         this.phoneNumber = phoneNumber;
         this.location = location;
