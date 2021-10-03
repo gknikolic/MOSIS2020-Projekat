@@ -70,6 +70,16 @@
             android:textColorHint="@color/design_default_color_primary" />
 
         <EditText
+            android:id="@+id/fullname_reg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/round_input"
+            android:hint="@string/fullname"
+            android:textColor="@color/design_default_color_primary"
+            android:textColorHint="@color/design_default_color_primary" />
+
+        <EditText
             android:id="@+id/phone_num_reg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

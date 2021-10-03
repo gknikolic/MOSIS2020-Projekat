@@ -4,5 +4,7 @@
     <dimen name="container_padding">10dp</dimen>
     <dimen name="user_image_nav_menu">70dp</dimen>
     <dimen name="post_userImage">40dp</dimen>
+    <dimen name="userSettings_userImage">200dp</dimen>
     <dimen name="drawablePadding">2sp</dimen>
+    <dimen name="fragmentPadding">16dp</dimen>
 </resources>

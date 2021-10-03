@@ -18,6 +18,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -25,30 +26,40 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
+import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.Repositories.UsersData;
+import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.Services.UserLocationService;
+import rs.elfak.findpet.data_models.Post;
 import rs.elfak.findpet.data_models.User;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UsersListEventListener {
 
     private static final int PERMISSION_ACCESS_LOCATION = 100;
     private SharedPreferences sharedPreferences;
     private DrawerLayout drawer;
     private User currentUser;
     private UsersData usersDataReference;
+    private TextView username;
+    private TextView locationServiceStatus;
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        usersDataReference = UsersData.getInstance();
-//        currentUser = usersDataReference.getCurrentLogedUser();
         InitSideBar(savedInstanceState);
+        usersDataReference = UsersData.getInstance();
+        usersDataReference.setUpdateListener(this);
 
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
         if(!sharedPreferences.getBoolean("isLogged", false)){
@@ -62,29 +73,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void InitSideBar(Bundle savedInstanceState) {
-        //TODO Populate username and locationServiceInfo
-        TextView username = (TextView)findViewById(R.id.nav_header_username);
-//        if(currentUser != null) username.setText(currentUser.username);
-
-        TextView locationServiceStatus = (TextView)findViewById(R.id.nav_header_location_service_status);
-//        locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+
+        //TODO Investigate how to take username from nav_header
+        this.username = toolbar.findViewById(R.id.nav_user);
+        this.locationServiceStatus = toolbar.findViewById(R.id.nav_header_location_service_status);
+
+        this.username = findViewById(R.id.nav_view).findViewById(R.id.nav_user);
+
+        this.username = findViewById(R.id.nav_user);
+        this.locationServiceStatus = findViewById(R.id.nav_header_location_service_status);
+
         if(savedInstanceState == null) { //this will prevent reloading fragment when rotating device
             //first fragment when we open app
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DashboardFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_dashboard);
         }
+    }
+
+    @Override
+    public void OnUsersListUpdated() {
+        Log.i("USERS", "Callback for loading user data in side menu user:  "  + UsersData.getInstance().getCurrentLogedUser().username);
+        this.currentUser = UsersData.getInstance().getCurrentLogedUser();
+//        username.setText(currentUser.username);
+//        locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));
     }
 
     @Override
@@ -100,7 +122,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment()).commit();
                 break;
             case R.id.nav_user:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserFragment()).commit();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(Constants.USER_KEY, currentUser);
+                UserFragment fragment = new UserFragment();
+                fragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
                 break;
             case R.id.nav_log_out:
                 LogOut();
@@ -177,4 +203,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent i = new Intent(MainActivity.this, GetStartedActivity.class);
         startActivity(i);
     }
+
 }

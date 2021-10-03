@@ -16,9 +16,12 @@
     <string name="message">Messages</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="user">User</string>
+    <string name="user">User Settings</string>
     <string name="call">CALL</string>
     <string name="view_on_map">VIEW</string>
     <string name="send_message">MESSAGE</string>
+    <string name="change_profile_picture">Change profile picture</string>
+    <string name="fullname">Full Name</string>
+    <string name="update_user">UPDATE USER</string>
 
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ import rs.elfak.findpet.data_models.User;
 
 public class DashboardFragment extends Fragment {
     private RecyclerView postsRecView;
+    private TextView username;
 
     @Nullable
     @Override
@@ -50,6 +52,8 @@ public class DashboardFragment extends Fragment {
 
         postsRecView.setAdapter(adapter);
         postsRecView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        this.username = getView().findViewById(R.id.nav_user);
     }
 
     private ArrayList<Post> HardcodePosts() {
@@ -63,8 +67,8 @@ public class DashboardFragment extends Fragment {
         post.location = new Location("43.3191867", "21.9121003");
         post.text = "Izgubljen je pas star oko 2 godine, odaziva se na ime Džeki.";
         post.timestamp = new Date(System.currentTimeMillis());
-        post.image = Helpers.drawableFromUrl("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cGV0c3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80");
-        post.user.profilePicture = Helpers.drawableFromUrl("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZXxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80");
+        post.image = Helpers.bitmapFromUrl("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cGV0c3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80");
+        post.user.profilePicture = Helpers.bitmapFromUrl("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZXxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80");
         posts.add(post);
         post = new Post();
         post.user = new User();
@@ -75,8 +79,8 @@ public class DashboardFragment extends Fragment {
         post.location = new Location("43.3191867", "21.9121003");
         post.text = "Izgubljen je pas star.";
         post.timestamp = new Date(System.currentTimeMillis());
-        post.image = Helpers.drawableFromUrl("https://images.indianexpress.com/2021/04/puppy-1903313_1280.jpg");
-        post.user.profilePicture = Helpers.drawableFromUrl("https://st.depositphotos.com/2101611/3925/v/600/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg");
+        post.image = Helpers.bitmapFromUrl("https://images.indianexpress.com/2021/04/puppy-1903313_1280.jpg");
+        post.user.profilePicture = Helpers.bitmapFromUrl("https://st.depositphotos.com/2101611/3925/v/600/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg");
         posts.add(post);
 
         return posts;

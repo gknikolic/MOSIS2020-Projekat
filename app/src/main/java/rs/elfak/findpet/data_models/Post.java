@@ -11,7 +11,7 @@ import rs.elfak.findpet.Enums.CaseType;
 public class Post {
     public Date timestamp;
     public String text;
-    public Drawable image;
+    public Bitmap image;
     public boolean IsFinished;
     public Location location;
     public User user;

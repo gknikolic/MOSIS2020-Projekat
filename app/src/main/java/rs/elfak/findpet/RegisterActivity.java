@@ -39,7 +39,8 @@ public class RegisterActivity extends AppCompatActivity {
             passwordEditText,
             repeatPassEditText,
             usernameEditText,
-            phoneNumEditText;
+            phoneNumEditText,
+            fullNameEditText;
 
     private Button regBtn;
     private ProgressBar progressBar;
@@ -73,16 +74,19 @@ public class RegisterActivity extends AppCompatActivity {
         repeatPassEditText = findViewById(R.id.repeat_pass_reg);
         usernameEditText = findViewById(R.id.username_reg);
         phoneNumEditText = findViewById(R.id.phone_num_reg);
+        fullNameEditText = findViewById(R.id.fullname_reg);
         regBtn = findViewById(R.id.register_btn);
         progressBar = findViewById(R.id.progressBar);
     }
 
     private void registerNewUser() {
-        String email, password, username, phoneNumber;
+        String email, password, username, phoneNumber, fullName;
         email = emailEditText.getText().toString();
         password = passwordEditText.getText().toString();
         username = usernameEditText.getText().toString();
         phoneNumber = phoneNumEditText.getText().toString();
+        fullName = fullNameEditText.getText().toString();
+
         progressBar.setVisibility(View.VISIBLE);
         if(checkFieldsValues()){
             checkIfUsernameIsTaken(username);
@@ -98,7 +102,7 @@ public class RegisterActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 progressBar.setVisibility(View.GONE);
                                 Toast.makeText(getApplicationContext(), "Registration successful!", Toast.LENGTH_LONG).show();
-                                User newUser = new User(username, email, phoneNumber);
+                                User newUser = new User(username, email, phoneNumber, fullName);
                                 newUser.key  = mAuth.getCurrentUser().getUid();
                                 UsersData.getInstance().addNewUser(newUser);
                                 Log.i(TAG, mAuth.getCurrentUser().getUid());

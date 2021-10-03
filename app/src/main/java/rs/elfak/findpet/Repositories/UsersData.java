@@ -212,7 +212,7 @@ public class UsersData {
         storageReference.child(currentUserUID + ".png").putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                getUser(currentUserUID).profilePicture = new BitmapDrawable(context.getResources(), bitmap);
+                getUser(currentUserUID).profilePicture = bitmap;
                 Toast.makeText(context, "Profile picture changed!", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
