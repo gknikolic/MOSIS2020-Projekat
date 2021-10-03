@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void InitSideBar(Bundle savedInstanceState) {
+        //TODO Populate username and locationServiceInfo
         TextView username = (TextView)findViewById(R.id.nav_header_username);
 //        if(currentUser != null) username.setText(currentUser.username);
 

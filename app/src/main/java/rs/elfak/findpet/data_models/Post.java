@@ -6,14 +6,16 @@ import android.graphics.drawable.Drawable;
 
 import java.util.Date;
 
+import rs.elfak.findpet.Enums.CaseType;
+
 public class Post {
-    public String userId;
-    public String userName;
     public Date timestamp;
-    public Bitmap userImage;
     public String text;
-    public Bitmap postImage;
-    public String phoneNumber;
+    public Drawable image;
+    public boolean IsFinished;
     public Location location;
+    public User user;
+    public Pet pet;
+    public CaseType caseType;
 
 }

@@ -1,7 +1,18 @@
 package rs.elfak.findpet.Helpers;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.StrictMode;
+
 import androidx.annotation.Nullable;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,5 +39,39 @@ public class Helpers {
         // Using DateFormat format method we can create a string
         // representation of a date with the defined format.
         return df.format(dateForFormat);
+    }
+
+    public static Bitmap bitmapFromUrl(String urlPath) {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        Bitmap image = null;
+        try {
+            URL url = new URL(urlPath);
+            image = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+        } catch(IOException e) {
+            System.out.println(e);
+        }
+        return image;
+    }
+
+    public static Drawable drawableFromUrl(String url) {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        Bitmap x;
+
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.connect();
+            InputStream input = connection.getInputStream();
+
+            x = BitmapFactory.decodeStream(input);
+            return new BitmapDrawable(Resources.getSystem(), x);
+        } catch(IOException e) {
+            System.out.println(e);
+        }
+
+        return null;
     }
 }

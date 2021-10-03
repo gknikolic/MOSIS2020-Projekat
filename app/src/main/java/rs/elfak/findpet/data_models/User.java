@@ -1,5 +1,6 @@
 package rs.elfak.findpet.data_models;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import com.google.firebase.database.Exclude;

@@ -36,13 +36,13 @@ public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //header
-        holder.userImage.setImageBitmap(posts.get(position).userImage);
-        holder.userName.setText(posts.get(position).userName);
+        holder.userImage.setImageDrawable(posts.get(position).user.profilePicture);
+        holder.userName.setText(posts.get(position).user.username);
         holder.timestamp.setText(Helpers.formatDate(posts.get(position).timestamp));
 
         //post details
         holder.postText.setText(posts.get(position).text);
-        holder.postImage.setImageBitmap(posts.get(position).postImage);
+        holder.postImage.setImageDrawable(posts.get(position).image);
 
         //buttons and clickable elements
         holder.btnCall.setOnClickListener(new View.OnClickListener() {
