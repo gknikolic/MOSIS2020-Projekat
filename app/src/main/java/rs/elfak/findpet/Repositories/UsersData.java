@@ -30,7 +30,7 @@ import java.util.HashMap;
 
 public class UsersData {
     private ArrayList<User> users;
-    private HashMap<String, Integer> usersIndexMapping;
+    private HashMap<String, Integer> usersKeyIndexMapping;
     private DatabaseReference dbReference;
     private static final String FIREBASE_CHILD = "users";
     private UsersListEventListener updateListener;
@@ -40,17 +40,63 @@ public class UsersData {
     private final ChildEventListener childEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+            String userKey = snapshot.getKey();
+            if (!usersKeyIndexMapping.containsKey(userKey)) {
+                User user = snapshot.getValue(User.class);
+                user.key = userKey;
+                users.add(user);
+                usersKeyIndexMapping.put(userKey, users.size() - 1);
+                if (updateListener != null) {
+                    updateListener.OnUsersListUpdated();
+                }
+                //todo handle profile picture
+//                storage.child("images").child(user.email + ".jpg").getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+//                    @Override
+//                    public void onSuccess(byte[] bytes) {
+//                        user.profilePicture=new byte[bytes.length];
+//                        for (int i = 0; i < bytes.length; i++) {
+//                            user.Uimage[i] = bytes[i];
+//                        }
+//                        users.add(user);
+//                        usersKeyIndexMapping.put(userKey, users.size() - 1);
+//                        if (updateListener != null) {
+//                            updateListener.onListUpdated();
+//                        }
+//                    }
+//                });
+            }
         }
 
         @Override
         public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+            String userKey = snapshot.getKey();
+            User user = snapshot.getValue(User.class);
+            user.key = userKey;
+            //todo handle profile picture
+            if(usersKeyIndexMapping.containsKey(userKey)){
+                int index = usersKeyIndexMapping.get(userKey);
+                users.set(index, user);
+            }
+            else{
+                users.add(user);
+                usersKeyIndexMapping.put(userKey, users.size() - 1);
+            }
+            if (updateListener != null) {
+                updateListener.OnUsersListUpdated();
+            }
         }
 
         @Override
         public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
+            String userKey = snapshot.getKey();
+            if (usersKeyIndexMapping.containsKey(userKey)) {
+                int index = usersKeyIndexMapping.get(userKey);
+                users.remove(index);
+                recreateKeyIndexMapping();
+            }
+            if (updateListener != null) {
+                updateListener.OnUsersListUpdated();
+            }
         }
 
         @Override
@@ -63,6 +109,13 @@ public class UsersData {
 
         }
     };
+
+    private void recreateKeyIndexMapping() {
+        usersKeyIndexMapping.clear();
+        for (int i = 0; i < users.size(); i++) {
+            usersKeyIndexMapping.put(users.get(i).key, i);
+        }
+    }
 
     private final ValueEventListener parentEventListener = new ValueEventListener() {
         @Override
@@ -79,7 +132,7 @@ public class UsersData {
 
     public UsersData() {
         users = new ArrayList<>();
-        usersIndexMapping = new HashMap<>();
+        usersKeyIndexMapping = new HashMap<>();
         dbReference = FirebaseDatabase.getInstance().getReference();
         currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         startListeners();
@@ -158,7 +211,7 @@ public class UsersData {
         public static final rs.elfak.findpet.Repositories.UsersData instance = new rs.elfak.findpet.Repositories.UsersData();
     }
 
-    public static rs.elfak.findpet.Repositories.UsersData getInstance() {
+    public static UsersData getInstance() {
         return SingletonHolder.instance;
     }
 
@@ -169,7 +222,7 @@ public class UsersData {
     public void addNewUser(User user) {
         String key = user.key;
         users.add(user);
-        usersIndexMapping.put(key, users.size() - 1);
+        usersKeyIndexMapping.put(key, users.size() - 1);
         DatabaseReference newUserRef = dbReference.child(FIREBASE_CHILD).child(key);
         newUserRef.setValue(user);
 
@@ -191,8 +244,8 @@ public class UsersData {
     }
 
     public User getUser(String key) {
-        if (usersIndexMapping.containsKey(key))
-            return getUser(usersIndexMapping.get(key));
+        if (usersKeyIndexMapping.containsKey(key))
+            return getUser(usersKeyIndexMapping.get(key));
         return null;
     }
 
