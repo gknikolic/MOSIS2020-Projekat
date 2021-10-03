@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import rs.elfak.findpet.RegisterActivity;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.data_models.User;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -19,6 +21,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -29,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UsersData {
+    private static final String TAG = "UsersData";
     private ArrayList<User> users;
     private HashMap<String, Integer> usersKeyIndexMapping;
     private DatabaseReference dbReference;
@@ -135,6 +139,27 @@ public class UsersData {
         usersKeyIndexMapping = new HashMap<>();
         dbReference = FirebaseDatabase.getInstance().getReference();
         currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        Query query = dbReference.child("users");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot ds: snapshot.getChildren()){
+                    String userKey = ds.getKey();
+                    if(!usersKeyIndexMapping.containsKey(userKey)){
+                        User user = ds.getValue(User.class);
+                        user.key = userKey;
+                        users.add(user);
+                        usersKeyIndexMapping.put(userKey, users.size() - 1);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
         startListeners();
     }
 
