@@ -10,20 +10,21 @@
     android:theme="@style/Theme.FindPet">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="@dimen/user_image_nav_menu"
+        android:layout_height="@dimen/user_image_nav_menu"
         app:cardCornerRadius="250dp"
         app:cardBackgroundColor="@color/white">
 
         <androidx.cardview.widget.CardView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="@dimen/user_image_nav_menu"
+            android:layout_height="@dimen/user_image_nav_menu"
             app:cardCornerRadius="250dp"
             android:layout_gravity="center">
 
             <ImageView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:id="@+id/nav_header_user_image"
+                android:layout_width="@dimen/user_image_nav_menu"
+                android:layout_height="@dimen/user_image_nav_menu"
                 android:src="@mipmap/ic_launcher_round"
                 android:scaleType="centerCrop"/>
 
@@ -45,6 +46,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
+        android:id="@+id/nav_header_location_service_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add some details of user here" />

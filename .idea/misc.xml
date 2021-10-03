@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/ic_baseline_access_time_24.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/ic_location_on_24.xml" value="0.22135416666666666" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/ic_person_pin_24.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/round_button.xml" value="0.3828125" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/round_input.xml" value="0.3828125" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/activity_get_started.xml" value="0.33" />
@@ -10,17 +13,18 @@
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/activity_main.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/activity_register.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/content_main.xml" value="0.20520833333333333" />
-        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_dashboard.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_dashboard.xml" value="0.22" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_map.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_message.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_messages.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_user.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/nav_header.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/post_list_item.xml" value="0.25" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/menu/menu_main.xml" value="0.36666666666666664" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
