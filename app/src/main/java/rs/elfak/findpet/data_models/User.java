@@ -8,8 +8,7 @@ public class User {
     public String username;
     public String phoneNumber;
     public String email;
-    public String latitude;
-    public String longitude;
+    public Location location;
     public boolean locationEnabled;
     public int totalPoints;
     @Exclude
@@ -23,8 +22,7 @@ public class User {
         this.username = username;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.latitude = "";
-        this.longitude = "";
+        this.location = new Location();
         this.totalPoints = 0;
         this.locationEnabled = true; //todo change to false!!!!
     }

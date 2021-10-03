@@ -21,7 +21,7 @@ public class DashboardFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        postsRecView = getView().findViewById(R.id.posts_rec_view);
+//        postsRecView = getView().findViewById(R.id.posts_rec_view);
 
         ArrayList<Post> posts = new ArrayList<>();
 

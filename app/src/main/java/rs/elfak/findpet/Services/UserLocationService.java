@@ -156,8 +156,8 @@ public class UserLocationService extends Service implements UsersListEventListen
                 Location.distanceBetween(
                         location.getLatitude(),
                         location.getLongitude(),
-                        Double.parseDouble(user.latitude),
-                        Double.parseDouble(user.longitude),
+                        Double.parseDouble(user.location.latitude),
+                        Double.parseDouble(user.location.longitude),
                         distance
                 );
                 Log.i(TAG, "User: " + user.username);
@@ -219,7 +219,7 @@ public class UserLocationService extends Service implements UsersListEventListen
         for (User user : UsersData.getInstance().getUsers())
             if (!user.key.equals(currentUser.key) && location != null) {
                 float[] distance = new float[2];
-                Location.distanceBetween(Double.parseDouble(user.latitude), Double.parseDouble(user.longitude), location.getLatitude(),
+                Location.distanceBetween(Double.parseDouble(user.location.latitude), Double.parseDouble(user.location.longitude), location.getLatitude(),
                         location.getLongitude(), distance);
                 if (distance[0] < 100 && user.locationEnabled)
                     sendUserNearNotification(user.username);
@@ -230,8 +230,9 @@ public class UserLocationService extends Service implements UsersListEventListen
     public void onLocationChanged(@NonNull Location location) {
         this.location = location;
         usersDataReference.updateLocation(location);
-        checkForNearUser(location);
-        checkForNearPets(location);
+        //TODO Uncomment this
+//        checkForNearUser(location);
+//        checkForNearPets(location);
     }
 
 
@@ -257,6 +258,7 @@ public class UserLocationService extends Service implements UsersListEventListen
         startActivity(intent);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onDestroy() {
         super.onDestroy();
