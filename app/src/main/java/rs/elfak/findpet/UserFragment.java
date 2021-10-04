@@ -45,7 +45,7 @@ public class UserFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        instalizeUI(getView());
+        initializeUI(getView());
 
         fullNameEditText.setText(currentUser.fullName);
         phoneNumberEditText.setText(currentUser.phoneNumber);
@@ -101,11 +101,13 @@ public class UserFragment extends Fragment {
                     e.printStackTrace();
                 }
                 UsersData.getInstance().changeUserProfilePicture(bitmapImage, getContext());
+                UsersData.getInstance().getCurrentLogedUser().profilePicture=bitmapImage;
+                profileImageImageView.setImageBitmap(bitmapImage);
             }
         }
     }
 
-    private void instalizeUI(View view) {
+    private void initializeUI(View view) {
         fullNameEditText = view.findViewById(R.id.userSettings_fullName);
         phoneNumberEditText = view.findViewById(R.id.userSettings_phoneNumber);
         profileImageImageView = view.findViewById(R.id.userSettings_profilePicture);

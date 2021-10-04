@@ -268,11 +268,14 @@ public class UsersData {
     }
 
     public void updateLocation(Location lastLocation) {
+        Log.i(TAG, "latitude:" + lastLocation.toString());
         if (!currentUserUID.equals("")) {
             dbReference.child("users").child(currentUserUID).child("location").child("latitude")
-                    .setValue(String.valueOf(lastLocation.getLatitude()));
+                    .setValue(lastLocation.getLatitude());
             dbReference.child("users").child(currentUserUID).child("location").child("longitude")
-                    .setValue(String.valueOf(lastLocation.getLongitude()));
+                    .setValue(lastLocation.getLongitude());
+//            getCurrentLogedUser().location.latitude = lastLocation.getLatitude();
+//            getCurrentLogedUser().location.latitude = lastLocation.getLongitude();
         }
     }
 

@@ -2,21 +2,17 @@ package rs.elfak.findpet.data_models;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class Location {
-    public String latitude;
-    public String longitude;
+import java.io.Serializable;
+
+public class Location  implements Serializable {
+    public double latitude;
+    public double longitude;
 
     public Location() {
-        this.latitude="";
-        this.longitude="";
     }
 
-    public Location(String latitude, String longitude) {
+    public Location(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-    }
-
-    public LatLng getLocation() {
-        return new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
     }
 }
