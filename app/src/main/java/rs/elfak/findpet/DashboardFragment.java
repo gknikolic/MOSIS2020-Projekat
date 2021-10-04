@@ -2,6 +2,7 @@ package rs.elfak.findpet;
 
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.service.controls.actions.FloatAction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,9 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -30,6 +34,7 @@ import rs.elfak.findpet.data_models.User;
 public class DashboardFragment extends Fragment {
     private RecyclerView postsRecView;
     private TextView username;
+    private FloatingActionButton fab;
 
     @Nullable
     @Override
@@ -40,6 +45,15 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        fab = view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null)
+                        .show();
+            }
+        });
 
         postsRecView = getView().findViewById(R.id.posts_rec_view);
 

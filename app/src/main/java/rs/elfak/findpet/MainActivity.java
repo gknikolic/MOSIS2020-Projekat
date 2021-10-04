@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SharedPreferences sharedPreferences;
     private DrawerLayout drawer;
     private User currentUser;
-    private UsersData usersDataReference;
     private TextView username;
     private TextView locationServiceStatus;
+    private ImageView profileImage;
     NavigationView navigationView;
 
     @Override
@@ -60,8 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         InitSideBar(savedInstanceState);
-        usersDataReference = UsersData.getInstance();
-        usersDataReference.setUpdateListener(this);
+        UsersData.getInstance().setUpdateListener(this);
 
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
         if(!sharedPreferences.getBoolean("isLogged", false)){
@@ -87,14 +87,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
 
-        //TODO Investigate how to take username from nav_header
-        this.username = toolbar.findViewById(R.id.nav_user);
-        this.locationServiceStatus = toolbar.findViewById(R.id.nav_header_location_service_status);
-
-        this.username = findViewById(R.id.nav_view).findViewById(R.id.nav_user);
-
-        this.username = findViewById(R.id.nav_user);
-        this.locationServiceStatus = findViewById(R.id.nav_header_location_service_status);
+        View header = navigationView.getHeaderView(0); //inflate header view
+        this.username = header.findViewById(R.id.nav_header_username);
+        this.locationServiceStatus = header.findViewById(R.id.nav_header_location_service_status);
+        this.profileImage = header.findViewById(R.id.nav_header_user_image);
 
         if(savedInstanceState == null) { //this will prevent reloading fragment when rotating device
             //first fragment when we open app
@@ -105,11 +101,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void OnUsersListUpdated() {
-        if(usersDataReference.getCurrentLogedUser() != null)
-            Log.i("USERS", "Callback for loading user data in side menu user:  "  + usersDataReference.getCurrentLogedUser().username);
         this.currentUser = UsersData.getInstance().getCurrentLogedUser();
-//        username.setText(currentUser.username);
-//        locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));
+        if(currentUser != null) {
+            Log.i("USERS", "Callback for loading user data in main activity:  "  + currentUser.username);
+            //header of sidebar
+            this.username.setText(currentUser.username);
+            this.locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));
+            this.profileImage.setImageBitmap(currentUser.profilePicture);
+        }
+
     }
 
     @Override
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagesFragment()).commit();
                 break;
             case R.id.nav_map:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapFragment()).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapsFragment()).commit();
                 break;
             case R.id.nav_user:
                 Bundle bundle = new Bundle();

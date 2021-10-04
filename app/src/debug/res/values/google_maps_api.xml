@@ -1,0 +1,24 @@
+<resources>
+    <!--
+    TODO: Before you run your application, you need a Google Maps API key.
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=CF:4C:F7:A7:A0:2E:D7:EC:04:51:CA:0C:13:27:64:97:4C:C9:6F:A8%3Brs.elfak.findpet
+
+    You can also add your credentials to an existing key, using these values:
+
+    Package name:
+    rs.elfak.findpet
+
+    SHA-1 certificate fingerprint:
+    CF:4C:F7:A7:A0:2E:D7:EC:04:51:CA:0C:13:27:64:97:4C:C9:6F:A8
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDv5_8BXlm_QJQCwQbq-BFutDd6SBnPMdc</string>
+</resources>
