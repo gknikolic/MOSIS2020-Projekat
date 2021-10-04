@@ -26,12 +26,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseCommonRegistrar;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.HashMap;
 
 import rs.elfak.findpet.Helpers.Constants;
@@ -103,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void OnUsersListUpdated() {
-        Log.i("USERS", "Callback for loading user data in side menu user:  "  + UsersData.getInstance().getCurrentLogedUser().username);
+        if(usersDataReference.getCurrentLogedUser() != null)
+            Log.i("USERS", "Callback for loading user data in side menu user:  "  + usersDataReference.getCurrentLogedUser().username);
         this.currentUser = UsersData.getInstance().getCurrentLogedUser();
 //        username.setText(currentUser.username);
 //        locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));

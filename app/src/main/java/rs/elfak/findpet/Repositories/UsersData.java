@@ -2,7 +2,7 @@ package rs.elfak.findpet.Repositories;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
@@ -10,7 +10,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import rs.elfak.findpet.RegisterActivity;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.data_models.User;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -40,34 +39,56 @@ public class UsersData {
     private UsersListEventListener updateListener;
     private String currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+    public static final String IMAGE_FORMAT = ".jpg";
 
     private final ChildEventListener childEventListener = new ChildEventListener() {
+        private static final long MAX_SIZE = 1028 * 1028 * 20;
+
         @Override
         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
             String userKey = snapshot.getKey();
             if (!usersKeyIndexMapping.containsKey(userKey)) {
                 User user = snapshot.getValue(User.class);
                 user.key = userKey;
-                users.add(user);
-                usersKeyIndexMapping.put(userKey, users.size() - 1);
-                if (updateListener != null) {
-                    updateListener.OnUsersListUpdated();
+                try{
+                    if (user.profilePictureUploaded){
+                        storageReference.child("profilePictures").child(user.key + IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] bytes) {
+                                user.profilePicture= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                users.add(user);
+                                usersKeyIndexMapping.put(userKey, users.size() - 1);
+                                if (updateListener != null) {
+                                    updateListener.OnUsersListUpdated();
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                users.add(user);
+                                Log.i("OnFailure", "##############################FAILED############################");
+                                usersKeyIndexMapping.put(userKey, users.size()-1);
+                                if (updateListener != null) {
+                                    updateListener.OnUsersListUpdated();
+                                }
+                            }
+                        });
+                    }
+                    else{
+                        users.add(user);
+                        usersKeyIndexMapping.put(userKey, users.size()-1);
+                        if (updateListener != null) {
+                            updateListener.OnUsersListUpdated();
+                        }
+                    }
+
+                }catch (Exception e){
+                    users.add(user);
+                    usersKeyIndexMapping.put(userKey, users.size()-1);
+                    if (updateListener != null) {
+                        updateListener.OnUsersListUpdated();
+                    }
                 }
-                //todo handle profile picture
-//                storage.child("images").child(user.email + ".jpg").getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-//                    @Override
-//                    public void onSuccess(byte[] bytes) {
-//                        user.profilePicture=new byte[bytes.length];
-//                        for (int i = 0; i < bytes.length; i++) {
-//                            user.Uimage[i] = bytes[i];
-//                        }
-//                        users.add(user);
-//                        usersKeyIndexMapping.put(userKey, users.size() - 1);
-//                        if (updateListener != null) {
-//                            updateListener.onListUpdated();
-//                        }
-//                    }
-//                });
             }
         }
 
@@ -76,17 +97,67 @@ public class UsersData {
             String userKey = snapshot.getKey();
             User user = snapshot.getValue(User.class);
             user.key = userKey;
-            //todo handle profile picture
+
             if(usersKeyIndexMapping.containsKey(userKey)){
-                int index = usersKeyIndexMapping.get(userKey);
-                users.set(index, user);
+                if (user.profilePictureUploaded) {
+                    storageReference.child("profilePictures").child(user.key + IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                        @Override
+                        public void onSuccess(byte[] bytes) {
+                            user.profilePicture = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            int index = usersKeyIndexMapping.get(userKey);
+                            users.set(index, user);
+                            if (updateListener != null) {
+                                updateListener.OnUsersListUpdated();
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            int index = usersKeyIndexMapping.get(userKey);
+                            users.set(index, user);
+                            if (updateListener != null) {
+                                updateListener.OnUsersListUpdated();
+                            }
+                        }
+                    });
+                }
+                else {
+                    int index = usersKeyIndexMapping.get(userKey);
+                    users.set(index, user);
+                    if (updateListener != null) {
+                        updateListener.OnUsersListUpdated();
+                    }
+                }
             }
             else{
-                users.add(user);
-                usersKeyIndexMapping.put(userKey, users.size() - 1);
-            }
-            if (updateListener != null) {
-                updateListener.OnUsersListUpdated();
+                if (user.profilePictureUploaded){
+                    storageReference.child("profilePictures").child(user.key + IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                        @Override
+                        public void onSuccess(byte[] bytes) {
+                            user.profilePicture= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                            users.add(user);
+                            usersKeyIndexMapping.put(userKey, users.size() - 1);
+                            if (updateListener != null) {
+                                updateListener.OnUsersListUpdated();
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            users.add(user);
+                            usersKeyIndexMapping.put(userKey, users.size() - 1);
+                            if (updateListener != null) {
+                                updateListener.OnUsersListUpdated();
+                            }
+                        }
+                    });
+                }else {
+                    users.add(user);
+                    usersKeyIndexMapping.put(userKey, users.size() - 1);
+                    if (updateListener != null) {
+                        updateListener.OnUsersListUpdated();
+                    }
+                }
             }
         }
 
@@ -151,6 +222,7 @@ public class UsersData {
                         user.key = userKey;
                         users.add(user);
                         usersKeyIndexMapping.put(userKey, users.size() - 1);
+//                        todo insert code for profile picture retrieving
                     }
                 }
             }
@@ -173,46 +245,18 @@ public class UsersData {
         dbReference.child(FIREBASE_CHILD).removeEventListener(parentEventListener);
     }
 
-//    public void uploadPicture(Bitmap bitmap, Park uploadPark, Context context) {
-//        String key = database.child("korisnici").child(myUID).child("Slike").push().getKey();
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//        byte[] data = baos.toByteArray();
-//        storageReference.child(key + ".png").putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                HashMap<String, Boolean> m = new HashMap<>();
-//                m.put("liked", false);
-//                m.put("faved", false);
-//                m.put("mine", true);
-//                database.child("korisnici").child(myUID).child("Slike").child(key).setValue(m);
-//
-//                HashMap<String, Object> m2 = new HashMap<>();
-//                m2.put("Owner", myUID);
-//                m2.put("numOfLikes", 0);
-//                m2.put("Park", uploadPark.key);
-//                database.child("Pictures").child(key).setValue(m2);
-//                Toast.makeText(context, "Slika postavljena!", Toast.LENGTH_SHORT).show();
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull @NotNull Exception e) {
-//                Toast.makeText(context, "Doslo je do greske! Slika nije postavljena!", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//
-//
-//    }
-
     public void changeUserProfilePicture(Bitmap bitmap, Context context) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
         byte[] data = byteArrayOutputStream.toByteArray();
-        storageReference.child(currentUserUID + ".png").delete();
-        storageReference.child(currentUserUID + ".png").putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        if(getCurrentLogedUser().profilePictureUploaded)
+            storageReference.child("profilePictures").child(currentUserUID + IMAGE_FORMAT).delete();
+        storageReference.child("profilePictures").child(currentUserUID + IMAGE_FORMAT).putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 getUser(currentUserUID).profilePicture = bitmap;
+                getCurrentLogedUser().profilePictureUploaded = true;
+                updateUser(currentUserUID);
                 Toast.makeText(context, "Profile picture changed!", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -233,7 +277,7 @@ public class UsersData {
     }
 
     private static class SingletonHolder {
-        public static final rs.elfak.findpet.Repositories.UsersData instance = new rs.elfak.findpet.Repositories.UsersData();
+        public static final UsersData instance = new UsersData();
     }
 
     public static UsersData getInstance() {
@@ -246,19 +290,20 @@ public class UsersData {
 
     public void addNewUser(User user) {
         String key = user.key;
+        user.profilePictureUploaded = false;
         users.add(user);
         usersKeyIndexMapping.put(key, users.size() - 1);
         DatabaseReference newUserRef = dbReference.child(FIREBASE_CHILD).child(key);
         newUserRef.setValue(user);
 
 //        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.user_icon);
-//        korisnik.setDrawable(context.getResources().getDrawable(R.drawable.user_icon, context.getTheme()));
+//        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.avatar);
+//        user.profilePicture = bitmap;
 //        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
 //        byte[] data = baos.toByteArray();
 //        storageReference.child(key + ".png").putBytes(data).addOnFailureListener(new OnFailureListener() {
 //            @Override
-//            public void onFailure(@NonNull @NotNull Exception e) {
+//            public void onFailure(@NonNull Exception e) {
 //                Toast.makeText(context, "Doslo je do greske! Slika nije postavljena!", Toast.LENGTH_SHORT).show();
 //            }
 //        });
@@ -274,10 +319,9 @@ public class UsersData {
         return null;
     }
 
-    public void updateUser(String uid, String username) {
+    public void updateUser(String uid) {
         User user = getUser(uid);
-        user.username = username;
-        dbReference.child(FIREBASE_CHILD).child(user.key).child("username").setValue(username);
+        dbReference.child(FIREBASE_CHILD).child(user.key).setValue(user);
     }
 
     public void setUpdateListener(UsersListEventListener listener) {

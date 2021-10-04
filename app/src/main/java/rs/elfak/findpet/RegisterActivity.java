@@ -25,6 +25,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -105,10 +107,22 @@ public class RegisterActivity extends AppCompatActivity {
                                 User newUser = new User(username, email, phoneNumber, fullName);
                                 newUser.key  = mAuth.getCurrentUser().getUid();
                                 UsersData.getInstance().addNewUser(newUser);
-                                Log.i(TAG, mAuth.getCurrentUser().getUid());
+
                                 sharedPreferences.edit().putBoolean("isLogged", true).apply();
                                 Intent intent = new Intent(rs.elfak.findpet.RegisterActivity.this, MainActivity.class);
                                 startActivity(intent);
+                                FirebaseUser currentUser = mAuth.getCurrentUser();
+                                UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest
+                                        .Builder().setDisplayName(username).build();
+                                currentUser.updateProfile(profileUpdate)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if(task.isSuccessful()){
+                                                    Log.i(TAG, "User display name updated.");
+                                                }
+                                            }
+                                        });
                                 finish();
                             }
                             else {

@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Date;
 
 import rs.elfak.findpet.Enums.CaseType;
@@ -18,4 +20,6 @@ public class Post {
     public Pet pet;
     public CaseType caseType;
 
+    @Exclude
+    public String key;
 }
