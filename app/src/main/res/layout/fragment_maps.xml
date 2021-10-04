@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
+<RelativeLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsFragment"
-    android:theme="@style/Theme.FindPet"/>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="@dimen/fragmentPadding">
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="26dp"
+        android:id="@+id/mapsFragment_caseTypeSpinner"
+        android:layout_marginBottom="@dimen/fab_margin"/>
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        tools:context=".MapsFragment"
+        android:theme="@style/Theme.FindPet"
+        android:layout_below="@+id/mapsFragment_caseTypeSpinner"/>
+</RelativeLayout>

@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import rs.elfak.findpet.Helpers.Constants;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SharedPreferences sharedPreferences;
     private DrawerLayout drawer;
     private User currentUser;
+    private ArrayList<User> friends = new ArrayList<>();
     private TextView username;
     private TextView locationServiceStatus;
     private ImageView profileImage;
@@ -100,6 +102,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void OnUsersListUpdated() {
         this.currentUser = UsersData.getInstance().getCurrentLogedUser();
+        this.friends.addAll(UsersData.getInstance().getUsers());
+        if(this.friends.contains(currentUser)) {
+            this.friends.remove(currentUser);
+        }
+        this.friends.remove(currentUser);
         if(currentUser != null) {
             Log.i("USERS", "Callback for loading user data in main activity:  "  + currentUser.username);
             //header of sidebar
@@ -112,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Bundle bundle = new Bundle();
         switch (item.getItemId()) {
             case R.id.nav_dashboard:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DashboardFragment()).commit();
@@ -120,14 +128,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagesFragment()).commit();
                 break;
             case R.id.nav_map:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MapsFragment()).commit();
+                bundle.putSerializable(Constants.USER_KEY, currentUser);
+                bundle.putSerializable(Constants.FREINDS_KEY, friends);
+                MapsFragment mapsFragment = new MapsFragment();
+                mapsFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapsFragment).commit();
                 break;
             case R.id.nav_user:
-                Bundle bundle = new Bundle();
                 bundle.putSerializable(Constants.USER_KEY, currentUser);
-                UserFragment fragment = new UserFragment();
-                fragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment).commit();
+                UserFragment userFragment = new UserFragment();
+                userFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
                 break;
             case R.id.nav_log_out:
                 LogOut();
