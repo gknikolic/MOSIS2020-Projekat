@@ -19,5 +19,5 @@
         android:layout_height="400dp"
         tools:context=".MapsFragment"
         android:theme="@style/Theme.FindPet"
-        android:layout_below="@+id/mapsFragment_caseTypeSpinner"/>
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>
