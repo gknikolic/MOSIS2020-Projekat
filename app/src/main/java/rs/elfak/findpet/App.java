@@ -4,6 +4,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 
+import com.google.firebase.firestore.auth.User;
+
 public class App extends android.app.Application{
     public static final String LOCATION_SERVICE_FOREGROUND_CHANNEL = "findpet_foreground";
     public static final String USER_NEAR_CHANNEL_ID =  "findpet_user_near";

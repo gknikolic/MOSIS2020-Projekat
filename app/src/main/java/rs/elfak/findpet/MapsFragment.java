@@ -3,12 +3,10 @@ package rs.elfak.findpet;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,28 +17,60 @@ import android.widget.Spinner;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 
 import rs.elfak.findpet.Enums.CaseType;
 import rs.elfak.findpet.Helpers.Constants;
-import rs.elfak.findpet.Helpers.Helpers;
+import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.Pet;
 import rs.elfak.findpet.data_models.User;
+import rs.elfak.findpet.data_models.UserLocation;
+import rs.elfak.findpet.util.MyClusterManagerRenderer;
 
 public class MapsFragment extends Fragment {
 
-    GoogleMap map;
-    Spinner caseTypeSpinner;
-    User currentUser;
-    ArrayList<User> friends;
-    Pet pet;
+    private GoogleMap map;
+    private Spinner caseTypeSpinner;
+    private User currentUser;
+    private ArrayList<User> users;
+//    private Pet pet;
 
+    private ArrayList<User> mUserList = new ArrayList<>();
+    private ArrayList<UserLocation> mUserLocations = new ArrayList<>();
+    private LatLngBounds mMapBoundary;
+    private ClusterManager<ClusterMarker> mClusterManager;
+    private MyClusterManagerRenderer mClusterManagerRenderer;
+    private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
+
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //from main activity
+        currentUser = (User) getArguments().getSerializable(Constants.USER_KEY);
+        users = (ArrayList<User>) getArguments().getSerializable(Constants.FREINDS_KEY);
+        return inflater.inflate(R.layout.fragment_maps, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(callback);
+        }
+        caseTypeSpinner = (Spinner) view.findViewById(R.id.mapsFragment_caseTypeSpinner);
+        caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), android.R.layout.simple_spinner_item, CaseType.values()));
+    }
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -57,42 +87,19 @@ public class MapsFragment extends Fragment {
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
 
-            LatLng myLocation = currentUser.location.getLocation();
-            map.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
-            map.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
-            moveToLocation(myLocation);
+//            LatLng myLocation = currentUser.location.getLocation();
+//            map.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
+//            map.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+//            cameraZoomToLocation(myLocation);
 
-            //create marker with picture, only for friends
-//            createMarkerWithBitmap(currentUser.location.getLocation(), Helpers.bitmapFromUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPjkW6L6Fi2RYRQtGGPZeDA_Qt0qADmENA6A&usqp=CAU"), currentUser.username);
-//            moveToLocation(myLocation);
+            //TODO create marker with picture, only for friends
+            addMapMarkers();
 
             Log.i("MAPS", "On map create method");
         }
     };
 
-    private void createMarkerWithBitmap(LatLng location, Bitmap picture, String title) {
-        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        Bitmap bmp = Bitmap.createBitmap(80, 80, conf);
-        Canvas canvas1 = new Canvas(bmp);
-
-        // paint defines the text color, stroke width and size
-        Paint color = new Paint();
-        color.setTextSize(35);
-        color.setColor(Color.BLACK);
-
-        // modify canvas
-        canvas1.drawBitmap(picture, 0,0, color);
-        canvas1.drawText(title, 30, 40, color);
-
-        // add marker to Map
-        map.addMarker(new MarkerOptions()
-                .position(location)
-                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
-                // Specifies the anchor to be at a particular point in the marker image.
-                .anchor(0.5f, 1));
-    }
-
-    private void moveToLocation(LatLng location)
+    private void cameraZoomToLocation(LatLng location)
     {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(location,15));
         // Zoom in, animating the camera.
@@ -101,24 +108,79 @@ public class MapsFragment extends Fragment {
         map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //from main activity
-        currentUser = (User) getArguments().getSerializable(Constants.USER_KEY);
-        friends = (ArrayList<User>) getArguments().getSerializable(Constants.FREINDS_KEY);
-        return inflater.inflate(R.layout.fragment_maps, container, false);
+    private void addMapMarkers(){
+
+        if(map != null){
+
+            if(mClusterManager == null){
+                mClusterManager = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
+            }
+            if(mClusterManagerRenderer == null){
+                mClusterManagerRenderer = new MyClusterManagerRenderer(
+                        getActivity(),
+                        map,
+                        mClusterManager
+                );
+                mClusterManager.setRenderer(mClusterManagerRenderer);
+            }
+
+            //TODO Add filter for friends only
+            for(User friend: users){
+
+//                Log.d("CLUSTER_MARKER", "addMapMarkers: location: " + userLocation.getGeo_point().toString());
+                try{
+                    String snippet = "";
+                    if(friend.getUser_id().equals(currentUser.getUser_id())) {
+                        snippet = "This is you";
+                    }
+                    else{
+                        snippet = "Determine route to " + friend.username + "?";
+                    }
+
+                    Bitmap avatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar);; // set the default avatar
+                    try{
+                        avatar = friend.profilePicture;
+                    }catch (NumberFormatException e){
+                        Log.d("MAPS", "addMapMarkers: no avatar for " + friend.username + ", setting default.");
+                    }
+                    ClusterMarker newClusterMarker = new ClusterMarker(
+                            friend.location.getLocation(),
+                            friend.username,
+                            snippet,
+                            avatar,
+                            friend
+                    );
+                    mClusterManager.addItem(newClusterMarker);
+                    mClusterMarkers.add(newClusterMarker);
+
+                }catch (NullPointerException e){
+                    Log.e("MAPS", "addMapMarkers: NullPointerException: " + e.getMessage() );
+                }
+
+            }
+            mClusterManager.cluster();
+
+            setCameraView();
+        }
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(callback);
-        }
-        caseTypeSpinner = (Spinner) view.findViewById(R.id.mapsFragment_caseTypeSpinner);
-        caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), android.R.layout.simple_spinner_item, CaseType.values()));
+    /**
+     * Determines the view boundary then sets the camera
+     * Sets the view
+     */
+    private void setCameraView() {
+
+        // Set a boundary to start
+        double bottomBoundary = currentUser.location.getLatitude() - .1;
+        double leftBoundary = currentUser.location.getLongitude() - .1;
+        double topBoundary = currentUser.location.getLatitude() + .1;
+        double rightBoundary = currentUser.location.getLongitude() + .1;
+
+        mMapBoundary = new LatLngBounds(
+                new LatLng(bottomBoundary, leftBoundary),
+                new LatLng(topBoundary, rightBoundary)
+        );
+
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary, 0));
     }
 }
