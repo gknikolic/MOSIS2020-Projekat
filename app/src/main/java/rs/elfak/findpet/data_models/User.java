@@ -16,6 +16,7 @@ public class User implements Serializable {
     public String fullName;
     public Location location;
     public boolean locationEnabled;
+    public boolean profilePictureUploaded;
     public int totalPoints;
     @Exclude
     public String key;
