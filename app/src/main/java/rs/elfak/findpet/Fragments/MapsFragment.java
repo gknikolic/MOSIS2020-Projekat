@@ -77,7 +77,7 @@ public class MapsFragment extends Fragment {
             mapFragment.getMapAsync(callback);
         }
         caseTypeSpinner = (Spinner) view.findViewById(R.id.mapsFragment_caseTypeSpinner);
-        caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), android.R.layout.simple_spinner_item, CaseType.values()));
+        caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), R.layout.spinner_item, CaseType.values()));
         caseTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
