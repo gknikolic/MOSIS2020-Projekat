@@ -15,6 +15,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -75,6 +78,7 @@ public class UserFragment extends Fragment {
                 }
                 else {
                     startGallery();
+//                    pickImage();
                 }
             }
         });
@@ -84,8 +88,15 @@ public class UserFragment extends Fragment {
         Intent cameraIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         cameraIntent.setType("image/*");
         if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            startActivityForResult(cameraIntent, 1000);
+            startActivityForResult(cameraIntent, Constants.STORAGE_REQUEST_CODE);
         }
+    }
+
+    private void pickImage() {
+        CropImage.activity()
+                .setCropShape(CropImageView.CropShape.OVAL)
+                .start(getActivity());
+        //todo activity problem
     }
 
     @Override
