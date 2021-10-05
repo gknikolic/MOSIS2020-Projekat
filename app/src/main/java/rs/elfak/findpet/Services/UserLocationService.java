@@ -53,8 +53,6 @@ public class UserLocationService extends Service implements UsersListEventListen
         currentUser = usersDataReference.getCurrentLogedUser();
         notificationManager = (NotificationManagerCompat) NotificationManagerCompat.from(this);
 
-
-
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
@@ -92,6 +90,7 @@ public class UserLocationService extends Service implements UsersListEventListen
     @SuppressLint("MissingPermission")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.i("OnStart", "Service started");
         boolean useGps = true;
         if(intent != null)
              useGps = intent.getBooleanExtra("useGps", true);
@@ -139,21 +138,24 @@ public class UserLocationService extends Service implements UsersListEventListen
     }
 
     public void checkForNearUser(Location location){
-//        Log.i(TAG, "check for near user users_list_len: " + usersDataReference.getUsers().size());
-        for(User user: usersDataReference.getUsers()){
-            if(!user.key.equals(currentUser.key)){
-                float[] distance = new float[1];
-                Location.distanceBetween(
-                        location.getLatitude(),
-                        location.getLongitude(),
-                        user.location.latitude,
-                        user.location.longitude,
-                        distance
-                );
-                Log.i(TAG, "User: " + user.username);
-                Log.i(TAG, "Distance: " + Float.toString(distance[0]));
-                if(distance[0] < OBJECT_NEAR_DISTANCE && currentUser.locationEnabled){
-                    sendUserNearNotification(user.username);
+        if(currentUser != null){
+            for(User user: usersDataReference.getUsers()){
+                if(!user.key.equals(currentUser.key)){
+                    if(user.locationEnabled){
+                        float[] distance = new float[1];
+                        Location.distanceBetween(
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                user.location.latitude,
+                                user.location.longitude,
+                                distance
+                        );
+                        Log.i(TAG, "User: " + user.username);
+                        Log.i(TAG, "Distance: " + Float.toString(distance[0]));
+                        if(distance[0] < OBJECT_NEAR_DISTANCE && currentUser.locationEnabled){
+                            sendUserNearNotification(user.username);
+                        }
+                    }
                 }
             }
         }
@@ -171,7 +173,7 @@ public class UserLocationService extends Service implements UsersListEventListen
         Notification notification =
                 new NotificationCompat.Builder(this, App.USER_NEAR_CHANNEL_ID)
                         .setContentTitle("User Near!")
-                        .setContentText("User is near you")
+                        .setContentText("User" + username + " is near you")
                         .setSmallIcon(R.drawable.ic_person_pin_24)
                         .setContentIntent(pendingIntent)
                         .build();
@@ -206,25 +208,32 @@ public class UserLocationService extends Service implements UsersListEventListen
 
     @Override
     public void OnUsersListUpdated() {
-        for (User user : UsersData.getInstance().getUsers())
-            if (!user.key.equals(currentUser.key) && location != null) {
-                float[] distance = new float[2];
-                Location.distanceBetween(user.location.latitude, user.location.longitude, location.getLatitude(),
-                        location.getLongitude(), distance);
-                if (distance[0] < 100 && user.locationEnabled)
-                    sendUserNearNotification(user.username);
+        for(User user: UsersData.getInstance().getUsers()){
+            Log.i(TAG, "#########################" + user.username + "#########################");
+        }
+        if(currentUser != null){
+            Log.i("UsersDataCallback", "Callback entered");
+            for (User user : UsersData.getInstance().getUsers()) {
+                if (!user.key.equals(currentUser.key) && location != null) {
+                    float[] distance = new float[2];
+                    Location.distanceBetween(user.location.latitude, user.location.longitude, location.getLatitude(),
+                            location.getLongitude(), distance);
+                    if (distance[0] < 100 && user.locationEnabled)
+                        sendUserNearNotification(user.username);
+                }
             }
+        }
     }
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
+        Log.i("locationChanged", "Callback entered " + location.getLatitude() + " " + location.getLongitude());
         this.location = location;
-        usersDataReference.updateLocation(location);
+        UsersData.getInstance().updateLocation(location);
         //TODO Uncomment this
-//        checkForNearUser(location);
+        checkForNearUser(location);
 //        checkForNearPets(location);
     }
-
 
     @Override
     public void onLocationChanged(@NonNull List<Location> locations) {

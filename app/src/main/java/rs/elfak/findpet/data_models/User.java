@@ -21,7 +21,7 @@ public class User implements Serializable, Parcelable {
     @Exclude
     public String key;
     @Exclude
-    public Bitmap profilePicture;
+    public transient Bitmap profilePicture;
 
     public User(){}
 

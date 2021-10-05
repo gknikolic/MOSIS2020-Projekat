@@ -3,16 +3,16 @@ package rs.elfak.findpet.data_models;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.Exclude;
 
-public class Location {
-    public Double latitude;
-    public Double longitude;
+import java.io.Serializable;
+
+public class Location  implements Serializable {
+    public double latitude;
+    public double longitude;
 
     public Location() {
-        this.latitude=null;
-        this.longitude=null;
     }
 
-    public Location(Double latitude, Double longitude) {
+    public Location(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }

@@ -24,7 +24,7 @@ public class GetStartedActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent i = new Intent(GetStartedActivity.this, LoginActivity.class);
                 startActivity(i);
-//                finish();
+                finish();
             }
         });
 

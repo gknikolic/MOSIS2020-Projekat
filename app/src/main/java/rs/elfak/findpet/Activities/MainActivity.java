@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         UsersData.getInstance().setUpdateListener(this);
-        InitSideBar(savedInstanceState);
 
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
         if(!sharedPreferences.getBoolean("isLogged", false)){
@@ -64,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             finish();
         }
 
+        InitSideBar(savedInstanceState);
         this.startLocationService();
         this.registerLogOutBroadcastReceiver();
     }
@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             this.locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));
             this.profileImage.setImageBitmap(currentUser.profilePicture);
         }
-
     }
 
     @Override
@@ -126,11 +125,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapsFragment).commit();
                 break;
             case R.id.nav_user:
-                bundle.putSerializable(Constants.USER_KEY, currentUser);
-                UserFragment userFragment = new UserFragment();
-                userFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
-                break;
+                if(currentUser != null) {
+                    bundle.putSerializable(Constants.USER_KEY, currentUser);
+                    UserFragment userFragment = new UserFragment();
+                    userFragment.setArguments(bundle);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
+                    break;
+                }else {
+                    Toast.makeText(this, "User not fetched yet. Please wait", Toast.LENGTH_LONG);
+                    break;
+                }
             case R.id.nav_log_out:
                 LogOut();
                 break;
@@ -165,8 +169,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void startService(){
         Intent service = new Intent(getApplicationContext(), UserLocationService.class);
-        service.putExtra("useGps", false);
-//        ContextCompat.startForegroundService(this, service);
+        service.putExtra("useGps", true);
+        ContextCompat.startForegroundService(this, service);
     }
 
     @Override
@@ -192,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                FirebaseAuth.getInstance().signOut();
                 finish();
             }
         }, intentFilter);
@@ -199,6 +204,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     private void LogOut() {
+        Intent service = new Intent(getApplicationContext(), UserLocationService.class);
+        stopService(service);
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction("ACTION_LOGOUT");
         sendBroadcast(broadcastIntent);
