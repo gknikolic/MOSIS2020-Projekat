@@ -10,7 +10,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,30 +20,19 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.FirebaseCommonRegistrar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import rs.elfak.findpet.Helpers.Constants;
-import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.Services.UserLocationService;
-import rs.elfak.findpet.data_models.Post;
 import rs.elfak.findpet.data_models.User;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UsersListEventListener {
@@ -71,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         InitSideBar(savedInstanceState);
+        UsersData.getInstance().setCurrentUserUID(FirebaseAuth.getInstance().getCurrentUser().getUid());
         UsersData.getInstance().setUpdateListener(this);
         this.startLocationService();
         this.registerLogOutBroadcastReceiver();
@@ -103,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void OnUsersListUpdated() {
-        this.currentUser = UsersData.getInstance().getCurrentLogedUser();
+        this.currentUser = UsersData.getInstance().getCurrentLoggedUser();
         this.friends.addAll(UsersData.getInstance().getUsers());
         if(this.friends.contains(currentUser)) {
             this.friends.remove(currentUser);
@@ -143,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
                     break;
                 }else {
-                    Toast.makeText(this, "User not fetched yet. Please wait", Toast.LENGTH_LONG);
+                    Toast.makeText(this, "User not fetched yet. Please wait", Toast.LENGTH_LONG).show();
                     break;
                 }
             case R.id.nav_log_out:
@@ -207,14 +196,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                FirebaseAuth.getInstance().signOut();
+                Log.i("MainActvity", "LogOut called");
                 finish();
             }
         }, intentFilter);
     }
 
-
     private void LogOut() {
+        FirebaseAuth.getInstance().signOut();
+        currentUser = null;
         Intent service = new Intent(getApplicationContext(), UserLocationService.class);
         stopService(service);
         Intent broadcastIntent = new Intent();

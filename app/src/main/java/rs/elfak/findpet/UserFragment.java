@@ -101,7 +101,7 @@ public class UserFragment extends Fragment {
                     e.printStackTrace();
                 }
                 UsersData.getInstance().changeUserProfilePicture(bitmapImage, getContext());
-                UsersData.getInstance().getCurrentLogedUser().profilePicture=bitmapImage;
+                UsersData.getInstance().getCurrentLoggedUser().profilePicture=bitmapImage;
                 profileImageImageView.setImageBitmap(bitmapImage);
             }
         }

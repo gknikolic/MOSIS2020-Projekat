@@ -1,18 +1,14 @@
 package rs.elfak.findpet.Services;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -20,16 +16,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.Arrays;
 import java.util.List;
 
 import rs.elfak.findpet.App;
@@ -60,7 +50,7 @@ public class UserLocationService extends Service implements UsersListEventListen
     public void onCreate() {
         super.onCreate();
         usersDataReference = UsersData.getInstance();
-        currentUser = usersDataReference.getCurrentLogedUser();
+        currentUser = usersDataReference.getCurrentLoggedUser();
         notificationManager = (NotificationManagerCompat) NotificationManagerCompat.from(this);
 
         locationListener = new LocationListener() {
@@ -148,7 +138,13 @@ public class UserLocationService extends Service implements UsersListEventListen
     }
 
     public void checkForNearUser(Location location){
+        Log.i(TAG, "LOCATION CHANGED ############################");
+        for(User user: usersDataReference.getUsers()) {
+            Log.i(TAG, "User: " + user.username);
+        }
+        currentUser = usersDataReference.getCurrentLoggedUser();
         if(currentUser != null){
+            Log.i(TAG, "Current user not null");
             for(User user: usersDataReference.getUsers()){
                 if(!user.key.equals(currentUser.key)){
                     if(user.locationEnabled){
@@ -160,8 +156,8 @@ public class UserLocationService extends Service implements UsersListEventListen
                                 user.location.longitude,
                                 distance
                         );
-                        Log.i(TAG, "User: " + user.username);
-                        Log.i(TAG, "Distance: " + Float.toString(distance[0]));
+                        Log.v(TAG, "User: " + user.username);
+                        Log.v(TAG, "Distance: " + Float.toString(distance[0]));
                         if(distance[0] < OBJECT_NEAR_DISTANCE && currentUser.locationEnabled){
                             sendUserNearNotification(user.username);
                         }
@@ -183,7 +179,7 @@ public class UserLocationService extends Service implements UsersListEventListen
         Notification notification =
                 new NotificationCompat.Builder(this, App.USER_NEAR_CHANNEL_ID)
                         .setContentTitle("User Near!")
-                        .setContentText("User" + username + " is near you")
+                        .setContentText("User " + username + " is near you")
                         .setSmallIcon(R.drawable.ic_person_pin_24)
                         .setContentIntent(pendingIntent)
                         .build();

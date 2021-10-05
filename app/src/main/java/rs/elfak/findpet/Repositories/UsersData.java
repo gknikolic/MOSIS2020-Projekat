@@ -37,6 +37,11 @@ public class UsersData {
     private DatabaseReference dbReference;
     private static final String FIREBASE_CHILD = "users";
     private UsersListEventListener updateListener;
+
+    public void setCurrentUserUID(String currentUserUID) {
+        this.currentUserUID = currentUserUID;
+    }
+
     private String currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     public static final String IMAGE_FORMAT = ".jpg";
@@ -225,10 +230,12 @@ public class UsersData {
 //                        todo insert code for profile picture retrieving
                     }
                 }
+                if(updateListener!=null){
+                    updateListener.OnUsersListUpdated();
+                }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
 
@@ -249,13 +256,13 @@ public class UsersData {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
         byte[] data = byteArrayOutputStream.toByteArray();
-        if(getCurrentLogedUser().profilePictureUploaded)
+        if(getCurrentLoggedUser().profilePictureUploaded)
             storageReference.child("profilePictures").child(currentUserUID + IMAGE_FORMAT).delete();
         storageReference.child("profilePictures").child(currentUserUID + IMAGE_FORMAT).putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 getUser(currentUserUID).profilePicture = bitmap;
-                getCurrentLogedUser().profilePictureUploaded = true;
+                getCurrentLoggedUser().profilePictureUploaded = true;
                 updateUser(currentUserUID);
                 Toast.makeText(context, "Profile picture changed!", Toast.LENGTH_SHORT).show();
             }
@@ -274,8 +281,6 @@ public class UsersData {
                     .setValue(lastLocation.getLatitude());
             dbReference.child("users").child(currentUserUID).child("location").child("longitude")
                     .setValue(lastLocation.getLongitude());
-//            getCurrentLogedUser().location.latitude = lastLocation.getLatitude();
-//            getCurrentLogedUser().location.latitude = lastLocation.getLongitude();
         }
     }
 
@@ -298,18 +303,6 @@ public class UsersData {
         usersKeyIndexMapping.put(key, users.size() - 1);
         DatabaseReference newUserRef = dbReference.child(FIREBASE_CHILD).child(key);
         newUserRef.setValue(user);
-
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.avatar);
-//        user.profilePicture = bitmap;
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-//        byte[] data = baos.toByteArray();
-//        storageReference.child(key + ".png").putBytes(data).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Toast.makeText(context, "Doslo je do greske! Slika nije postavljena!", Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 
     public User getUser(int index) {
@@ -331,7 +324,7 @@ public class UsersData {
         updateListener = listener;
     }
 
-    public User getCurrentLogedUser(){
+    public User getCurrentLoggedUser(){
         return getUser(currentUserUID);
     }
 }
