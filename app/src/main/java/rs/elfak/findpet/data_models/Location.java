@@ -22,19 +22,4 @@ public class Location  implements Serializable {
         return new LatLng(latitude, longitude);
     }
 
-    public Double getLatitude() {
-        return this.latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return this.longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
 }

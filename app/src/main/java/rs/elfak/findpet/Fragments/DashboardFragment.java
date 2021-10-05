@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Fragments;
 
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import rs.elfak.findpet.Adapters.PostsRecViewAdapter;
 import rs.elfak.findpet.Helpers.Helpers;
+import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.data_models.Location;
 import rs.elfak.findpet.data_models.Pet;

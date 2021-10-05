@@ -38,4 +38,9 @@ public class ClusterMarker implements ClusterItem {
     public String getSnippet() {
         return snippet;
     }
+
+    @Override
+    public String toString() {
+        return user.username; // What to display in the Spinner list.
+    }
 }

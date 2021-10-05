@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -29,7 +29,12 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
+import rs.elfak.findpet.Fragments.DashboardFragment;
+import rs.elfak.findpet.Fragments.MapsFragment;
+import rs.elfak.findpet.Fragments.MessagesFragment;
+import rs.elfak.findpet.Fragments.UserFragment;
 import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.Services.UserLocationService;
@@ -41,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SharedPreferences sharedPreferences;
     private DrawerLayout drawer;
     private User currentUser;
-    private ArrayList<User> friends = new ArrayList<>();
+    private ArrayList<User> users = new ArrayList<>();
     private TextView username;
     private TextView locationServiceStatus;
     private ImageView profileImage;
@@ -51,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        UsersData.getInstance().setUpdateListener(this);
+
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
         if(!sharedPreferences.getBoolean("isLogged", false)){
             Intent i = new Intent(MainActivity.this, GetStartedActivity.class);
@@ -61,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         InitSideBar(savedInstanceState);
         UsersData.getInstance().setCurrentUserUID(FirebaseAuth.getInstance().getCurrentUser().getUid());
         UsersData.getInstance().setUpdateListener(this);
+
         this.startLocationService();
         this.registerLogOutBroadcastReceiver();
     }
@@ -93,11 +101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void OnUsersListUpdated() {
         this.currentUser = UsersData.getInstance().getCurrentLoggedUser();
-        this.friends.addAll(UsersData.getInstance().getUsers());
-        if(this.friends.contains(currentUser)) {
-            this.friends.remove(currentUser);
-        }
-        this.friends.remove(currentUser);
+        this.users = UsersData.getInstance().getUsers();
+
         if(currentUser != null) {
             Log.i("USERS", "Callback for loading user data in main activity:  "  + currentUser.username);
             //header of sidebar
@@ -119,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_map:
                 bundle.putSerializable(Constants.USER_KEY, currentUser);
-                bundle.putSerializable(Constants.FREINDS_KEY, friends);
+                bundle.putSerializable(Constants.FREINDS_KEY, users);
                 MapsFragment mapsFragment = new MapsFragment();
                 mapsFragment.setArguments(bundle);
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapsFragment).commit();

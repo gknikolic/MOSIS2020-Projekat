@@ -1,12 +1,13 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import rs.elfak.findpet.R;
 
 public class GetStartedActivity extends AppCompatActivity {
 
@@ -21,7 +22,7 @@ public class GetStartedActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(rs.elfak.findpet.GetStartedActivity.this, LoginActivity.class);
+                Intent i = new Intent(GetStartedActivity.this, LoginActivity.class);
                 startActivity(i);
                 finish();
             }
@@ -31,7 +32,7 @@ public class GetStartedActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(rs.elfak.findpet.GetStartedActivity.this, RegisterActivity.class);
+                Intent i = new Intent(GetStartedActivity.this, RegisterActivity.class);
                 startActivity(i);
 //                finish();
             }

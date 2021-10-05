@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Fragments;
 
 import android.Manifest;
 import android.app.Activity;
@@ -15,6 +15,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -23,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import java.io.IOException;
 
 import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.data_models.User;
 
@@ -74,6 +78,7 @@ public class UserFragment extends Fragment {
                 }
                 else {
                     startGallery();
+//                    pickImage();
                 }
             }
         });
@@ -83,8 +88,15 @@ public class UserFragment extends Fragment {
         Intent cameraIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         cameraIntent.setType("image/*");
         if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            startActivityForResult(cameraIntent, 1000);
+            startActivityForResult(cameraIntent, Constants.STORAGE_REQUEST_CODE);
         }
+    }
+
+    private void pickImage() {
+        CropImage.activity()
+                .setCropShape(CropImageView.CropShape.OVAL)
+                .start(getActivity());
+        //todo activity problem
     }
 
     @Override

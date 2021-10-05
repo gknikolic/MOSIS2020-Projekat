@@ -76,6 +76,7 @@ public class User implements Serializable, Parcelable {
         dest.writeString(String.valueOf(profilePictureUploaded));
     }
 
+    @Exclude
     public String getUser_id() {
         return this.key;
     }

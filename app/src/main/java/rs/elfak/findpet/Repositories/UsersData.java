@@ -1,5 +1,6 @@
 package rs.elfak.findpet.Repositories;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,7 @@ import rs.elfak.findpet.data_models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,8 +45,10 @@ public class UsersData {
     }
 
     private String currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
     public static final String IMAGE_FORMAT = ".jpg";
+
 
     private final ChildEventListener childEventListener = new ChildEventListener() {
         private static final long MAX_SIZE = 1028 * 1028 * 20;
@@ -66,13 +70,14 @@ public class UsersData {
                                 if (updateListener != null) {
                                     updateListener.OnUsersListUpdated();
                                 }
+                                Log.i("USER ON ADD", "===========================ADDED USER WITH PROFILE PICTURE " + user.username);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 users.add(user);
-                                Log.i("OnFailure", "##############################FAILED############################");
                                 usersKeyIndexMapping.put(userKey, users.size()-1);
+                                Log.i("OnFailure", "##############################FAILED############################");
                                 if (updateListener != null) {
                                     updateListener.OnUsersListUpdated();
                                 }
@@ -82,6 +87,7 @@ public class UsersData {
                     else{
                         users.add(user);
                         usersKeyIndexMapping.put(userKey, users.size()-1);
+                        Log.i("USER ON ADD", "===========================ADDED USER WITHOUT PROFILE PICTURE " + user.username);
                         if (updateListener != null) {
                             updateListener.OnUsersListUpdated();
                         }
@@ -216,29 +222,27 @@ public class UsersData {
         dbReference = FirebaseDatabase.getInstance().getReference();
         currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        Query query = dbReference.child("users");
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot ds: snapshot.getChildren()){
-                    String userKey = ds.getKey();
-                    if(!usersKeyIndexMapping.containsKey(userKey)){
-                        User user = ds.getValue(User.class);
-                        user.key = userKey;
-                        users.add(user);
-                        usersKeyIndexMapping.put(userKey, users.size() - 1);
-//                        todo insert code for profile picture retrieving
-                    }
-                }
-                if(updateListener!=null){
-                    updateListener.OnUsersListUpdated();
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        });
-
+//        Query query = dbReference.child("users");
+//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                for(DataSnapshot ds: snapshot.getChildren()){
+//                    String userKey = ds.getKey();
+//                    if(!usersKeyIndexMapping.containsKey(userKey)){
+//                        User user = ds.getValue(User.class);
+//                        user.key = userKey;
+//                        users.add(user);
+//                        usersKeyIndexMapping.put(userKey, users.size() - 1);
+//                        Log.i("USER IN CTOR", "===========================ADDED USER  " + user.username);
+////                        todo insert code for profile picture retrieving
+//                    }
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
         startListeners();
     }
 

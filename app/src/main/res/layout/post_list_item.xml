@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="@dimen/container_padding">
+    android:padding="@dimen/container_padding"
+    android:background="@color/design_default_color_on_primary"
+    android:layout_marginBottom="@dimen/fab_margin">
 
     <RelativeLayout
         android:id="@+id/post_header"

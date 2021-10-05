@@ -1,4 +1,4 @@
-package rs.elfak.findpet.util;
+package rs.elfak.findpet.Utilities;
 
 import android.content.Context;
 import android.graphics.Bitmap;

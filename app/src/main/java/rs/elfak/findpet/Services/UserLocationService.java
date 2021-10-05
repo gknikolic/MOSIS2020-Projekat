@@ -23,7 +23,7 @@ import androidx.core.app.NotificationManagerCompat;
 import java.util.List;
 
 import rs.elfak.findpet.App;
-import rs.elfak.findpet.MainActivity;
+import rs.elfak.findpet.Activities.MainActivity;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.data_models.User;

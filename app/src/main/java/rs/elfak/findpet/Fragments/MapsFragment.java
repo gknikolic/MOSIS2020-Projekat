@@ -1,9 +1,8 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,43 +11,43 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import rs.elfak.findpet.Adapters.ClusterSpinnerAdapter;
 import rs.elfak.findpet.Enums.CaseType;
 import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.R;
 import rs.elfak.findpet.data_models.ClusterMarker;
-import rs.elfak.findpet.data_models.Pet;
 import rs.elfak.findpet.data_models.User;
-import rs.elfak.findpet.data_models.UserLocation;
-import rs.elfak.findpet.util.MyClusterManagerRenderer;
+import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
 
 public class MapsFragment extends Fragment {
 
     private GoogleMap map;
     private Spinner caseTypeSpinner;
+    private Spinner markersSpinner;
+    private ClusterSpinnerAdapter clusterSpinnerAdapter;
     private User currentUser;
     private ArrayList<User> users;
-//    private Pet pet;
 
-    private ArrayList<User> mUserList = new ArrayList<>();
-    private ArrayList<UserLocation> mUserLocations = new ArrayList<>();
     private LatLngBounds mMapBoundary;
     private ClusterManager<ClusterMarker> mClusterManager;
     private MyClusterManagerRenderer mClusterManagerRenderer;
-    private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
+    private List<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
 
 
     @Nullable
@@ -68,8 +67,41 @@ public class MapsFragment extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
+
+        //TODO Investigate why onClick and onSelectItem listeners don't work in Google map activities
+
         caseTypeSpinner = (Spinner) view.findViewById(R.id.mapsFragment_caseTypeSpinner);
-        caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), android.R.layout.simple_spinner_item, CaseType.values()));
+        caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), R.layout.spinner_item, CaseType.values()));
+        caseTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getContext(), "clicked: " + CaseType.values()[i].toString(), Toast.LENGTH_LONG);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        // And finally send the Users array (Your data)
+        markersSpinner = (Spinner) view.findViewById(R.id.mapsFragment_markersSpinner);
+        clusterSpinnerAdapter = new ClusterSpinnerAdapter(getContext(),
+                android.R.layout.simple_spinner_item,
+                mClusterMarkers);
+        markersSpinner.setAdapter(clusterSpinnerAdapter); // Set the custom adapter to the spinner
+        // You can create an anonymous listener to handle the event when is selected an spinner item
+        markersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view,
+                                       int position, long id) {
+                ClusterMarker marker = clusterSpinnerAdapter.getItem(position);
+                cameraZoomToLocation(marker.position);
+                Log.i("MOVE MARKER", "selected user: " + marker.user);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapter) {  }
+        });
     }
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -139,19 +171,23 @@ public class MapsFragment extends Fragment {
 
                     Bitmap avatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar);; // set the default avatar
                     try{
-                        avatar = friend.profilePicture;
+                        if(friend.profilePicture != null) {
+                            avatar = friend.profilePicture;
+                        }
                     }catch (NumberFormatException e){
                         Log.d("MAPS", "addMapMarkers: no avatar for " + friend.username + ", setting default.");
                     }
-                    ClusterMarker newClusterMarker = new ClusterMarker(
-                            friend.location.getLocation(),
-                            friend.username,
-                            snippet,
-                            avatar,
-                            friend
-                    );
-                    mClusterManager.addItem(newClusterMarker);
-                    mClusterMarkers.add(newClusterMarker);
+                    if(friend.location != null) {
+                        ClusterMarker newClusterMarker = new ClusterMarker(
+                                friend.location.getLocation(),
+                                friend.username,
+                                snippet,
+                                avatar,
+                                friend
+                        );
+                        mClusterManager.addItem(newClusterMarker);
+                        mClusterMarkers.add(newClusterMarker);
+                    }
 
                 }catch (NullPointerException e){
                     Log.e("MAPS", "addMapMarkers: NullPointerException: " + e.getMessage() );
@@ -161,7 +197,9 @@ public class MapsFragment extends Fragment {
             mClusterManager.cluster();
 
             setCameraView();
+//            cameraZoomToLocation(currentUser.location.getLocation());
         }
+
     }
 
     /**
@@ -171,10 +209,10 @@ public class MapsFragment extends Fragment {
     private void setCameraView() {
 
         // Set a boundary to start
-        double bottomBoundary = currentUser.location.getLatitude() - .1;
-        double leftBoundary = currentUser.location.getLongitude() - .1;
-        double topBoundary = currentUser.location.getLatitude() + .1;
-        double rightBoundary = currentUser.location.getLongitude() + .1;
+        double bottomBoundary = currentUser.location.latitude - .1;
+        double leftBoundary = currentUser.location.longitude - .1;
+        double topBoundary = currentUser.location.latitude + .1;
+        double rightBoundary = currentUser.location.longitude + .1;
 
         mMapBoundary = new LatLngBounds(
                 new LatLng(bottomBoundary, leftBoundary),

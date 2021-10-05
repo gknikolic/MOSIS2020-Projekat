@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,7 +18,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.auth.User;
+
+import rs.elfak.findpet.R;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -77,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                             sharedPreferences.edit().putBoolean("isLogged", true).apply();
                             sharedPreferences.edit().putString("email", email);
                             //TODO put user id in sharedPreferences
-                            Intent intent = new Intent(rs.elfak.findpet.LoginActivity.this, MainActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();
                         }
