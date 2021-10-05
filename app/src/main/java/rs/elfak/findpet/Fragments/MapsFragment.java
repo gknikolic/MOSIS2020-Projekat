@@ -2,17 +2,10 @@ package rs.elfak.findpet.Fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.LocationRequest;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,12 +30,10 @@ import java.util.List;
 import rs.elfak.findpet.Adapters.ClusterSpinnerAdapter;
 import rs.elfak.findpet.Enums.CaseType;
 import rs.elfak.findpet.Helpers.Constants;
-import rs.elfak.findpet.Permissions.AppPermissions;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.User;
-import rs.elfak.findpet.data_models.UserLocation;
-import rs.elfak.findpet.util.MyClusterManagerRenderer;
+import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
 
 public class MapsFragment extends Fragment {
 
@@ -76,6 +67,9 @@ public class MapsFragment extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
+
+        //TODO Investigate why onClick and onSelectItem listeners don't work in Google map activities
+
         caseTypeSpinner = (Spinner) view.findViewById(R.id.mapsFragment_caseTypeSpinner);
         caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), R.layout.spinner_item, CaseType.values()));
         caseTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
