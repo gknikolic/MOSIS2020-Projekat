@@ -1,38 +1,25 @@
 package rs.elfak.findpet.data_models;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.Exclude;
 
 public class Location {
-    public String latitude;
-    public String longitude;
+    public Double latitude;
+    public Double longitude;
 
     public Location() {
-        this.latitude="";
-        this.longitude="";
+        this.latitude=null;
+        this.longitude=null;
     }
 
-    public Location(String latitude, String longitude) {
+    public Location(Double latitude, Double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
 
+    @Exclude
     public LatLng getLocation() {
-        return new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
+        return new LatLng(latitude, longitude);
     }
 
-    public Double getLatitude() {
-        return Double.parseDouble(this.latitude);
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return Double.parseDouble(this.longitude);
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
 }

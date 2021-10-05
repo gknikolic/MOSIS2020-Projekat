@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Fragments;
 
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import rs.elfak.findpet.Adapters.PostsRecViewAdapter;
 import rs.elfak.findpet.Helpers.Helpers;
+import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.data_models.Location;
 import rs.elfak.findpet.data_models.Pet;
@@ -78,7 +79,7 @@ public class DashboardFragment extends Fragment {
         post.location = new Location();
         post.user.username = "Nemanja";
         post.user.phoneNumber="0648546006";
-        post.location = new Location("43.3191867", "21.9121003");
+        post.location = new Location(43.3191867, 21.9121003);
         post.text = "Izgubljen je pas star oko 2 godine, odaziva se na ime Džeki.";
         post.timestamp = new Date(System.currentTimeMillis());
         post.image = Helpers.bitmapFromUrl("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cGV0c3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80");
@@ -90,7 +91,7 @@ public class DashboardFragment extends Fragment {
         post.location = new Location();
         post.user.username = "Zeljko";
         post.user.phoneNumber="0648546006";
-        post.location = new Location("43.3191867", "21.9121003");
+        post.location = new Location(43.3191867, 21.9121003);
         post.text = "Izgubljen je pas star.";
         post.timestamp = new Date(System.currentTimeMillis());
         post.image = Helpers.bitmapFromUrl("https://images.indianexpress.com/2021/04/puppy-1903313_1280.jpg");

@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Fragments;
 
 import android.Manifest;
 import android.app.Activity;
@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import java.io.IOException;
 
 import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.data_models.User;
 

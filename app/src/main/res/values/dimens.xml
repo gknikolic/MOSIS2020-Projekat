@@ -7,6 +7,6 @@
     <dimen name="userSettings_userImage">200dp</dimen>
     <dimen name="drawablePadding">2sp</dimen>
     <dimen name="fragmentPadding">16dp</dimen>
-    <dimen name="custom_marker_image">42dp</dimen>
-    <dimen name="custom_marker_padding">42dp</dimen>
+    <dimen name="custom_marker_image">60dp</dimen>
+    <dimen name="custom_marker_padding">1dp</dimen>
 </resources>

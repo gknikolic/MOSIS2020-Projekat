@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import rs.elfak.findpet.R;
 
 public class MessagesFragment extends Fragment {
     @Nullable

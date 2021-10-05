@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/NemanjaNikolic/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_item.xml" value="0.2390625" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/ic_baseline_access_time_24.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/ic_location_on_24.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/ic_person_pin_24.xml" value="0.22135416666666666" />
@@ -23,6 +24,7 @@
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_messages.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_user.xml" value="0.22" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/marker_image_new.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/marker_list_item.xml" value="0.2390625" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/marker_with_picture.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/nav_header.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/post_list_item.xml" value="0.5" />

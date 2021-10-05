@@ -5,12 +5,10 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,30 +19,22 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.FirebaseCommonRegistrar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
+import rs.elfak.findpet.Fragments.DashboardFragment;
+import rs.elfak.findpet.Fragments.MapsFragment;
+import rs.elfak.findpet.Fragments.MessagesFragment;
+import rs.elfak.findpet.Fragments.UserFragment;
 import rs.elfak.findpet.Helpers.Constants;
-import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.Services.UserLocationService;
-import rs.elfak.findpet.data_models.Post;
 import rs.elfak.findpet.data_models.User;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UsersListEventListener {
@@ -53,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SharedPreferences sharedPreferences;
     private DrawerLayout drawer;
     private User currentUser;
-    private ArrayList<User> friends = new ArrayList<>();
+    private ArrayList<User> users = new ArrayList<>();
     private TextView username;
     private TextView locationServiceStatus;
     private ImageView profileImage;
@@ -63,8 +53,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        InitSideBar(savedInstanceState);
         UsersData.getInstance().setUpdateListener(this);
+        InitSideBar(savedInstanceState);
 
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
         if(!sharedPreferences.getBoolean("isLogged", false)){
@@ -105,11 +95,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void OnUsersListUpdated() {
         this.currentUser = UsersData.getInstance().getCurrentLogedUser();
-        this.friends.addAll(UsersData.getInstance().getUsers());
-        if(this.friends.contains(currentUser)) {
-            this.friends.remove(currentUser);
-        }
-        this.friends.remove(currentUser);
+        this.users = UsersData.getInstance().getUsers();
+
         if(currentUser != null) {
             Log.i("USERS", "Callback for loading user data in main activity:  "  + currentUser.username);
             //header of sidebar
@@ -132,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_map:
                 bundle.putSerializable(Constants.USER_KEY, currentUser);
-                bundle.putSerializable(Constants.FREINDS_KEY, friends);
+                bundle.putSerializable(Constants.FREINDS_KEY, users);
                 MapsFragment mapsFragment = new MapsFragment();
                 mapsFragment.setArguments(bundle);
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapsFragment).commit();
@@ -178,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void startService(){
         Intent service = new Intent(getApplicationContext(), UserLocationService.class);
         service.putExtra("useGps", false);
-        ContextCompat.startForegroundService(this, service);
+//        ContextCompat.startForegroundService(this, service);
     }
 
     @Override
