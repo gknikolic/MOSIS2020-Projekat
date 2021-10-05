@@ -62,15 +62,15 @@
             android:exported="true"
             android:foregroundServiceType="location" />
 
-        <activity android:name=".GetStartedActivity" />
+        <activity android:name=".Activities.GetStartedActivity" />
         <activity
-            android:name=".LoginActivity"
-            android:parentActivityName=".GetStartedActivity" />
+            android:name=".Activities.LoginActivity"
+            android:parentActivityName=".Activities.GetStartedActivity" />
         <activity
-            android:name=".RegisterActivity"
-            android:parentActivityName=".GetStartedActivity" />
+            android:name=".Activities.RegisterActivity"
+            android:parentActivityName=".Activities.GetStartedActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".Activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.FindPet.NoActionBar"
             tools:ignore="IntentFilterExportedReceiver">

@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -16,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.data_models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -109,7 +108,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 UsersData.getInstance().addNewUser(newUser);
 
                                 sharedPreferences.edit().putBoolean("isLogged", true).apply();
-                                Intent intent = new Intent(rs.elfak.findpet.RegisterActivity.this, MainActivity.class);
+                                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 FirebaseUser currentUser = mAuth.getCurrentUser();
                                 UserProfileChangeRequest profileUpdate = new UserProfileChangeRequest

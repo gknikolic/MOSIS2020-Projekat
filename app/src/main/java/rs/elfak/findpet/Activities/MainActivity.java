@@ -1,4 +1,4 @@
-package rs.elfak.findpet;
+package rs.elfak.findpet.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -32,6 +32,7 @@ import rs.elfak.findpet.Fragments.MapsFragment;
 import rs.elfak.findpet.Fragments.MessagesFragment;
 import rs.elfak.findpet.Fragments.UserFragment;
 import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.Services.UserLocationService;
