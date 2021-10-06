@@ -9,4 +9,8 @@ public class Constants {
     public static final int LOCATION_REQUEST_CODE = 2000;
     public static final int STORAGE_PERMISSION_CODE = 3000;
     public static final int CAMERA_PERMISSION_CODE = 3001;
+    public static final String IMAGE_FORMAT = ".jpg";
+    public static final int LOCATION_PERMISSION_CODE = 100;
+
+
 }

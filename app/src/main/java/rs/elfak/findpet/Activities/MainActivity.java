@@ -42,7 +42,6 @@ import rs.elfak.findpet.data_models.User;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UsersListEventListener {
 
-    private static final int PERMISSION_ACCESS_LOCATION = 100;
     private SharedPreferences sharedPreferences;
     private DrawerLayout drawer;
     private User currentUser;
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         UsersData.getInstance().setCurrentUserUID(FirebaseAuth.getInstance().getCurrentUser().getUid());
         UsersData.getInstance().setUpdateListener(this);
 
-        this.startLocationService();
         this.registerLogOutBroadcastReceiver();
     }
 
@@ -159,41 +157,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    void startLocationService() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    PERMISSION_ACCESS_LOCATION
-            );
-        } else {
-            startService();
-        }
-    }
-
-    public void startService(){
-        Intent service = new Intent(getApplicationContext(), UserLocationService.class);
-        service.putExtra("useGps", true);
-        ContextCompat.startForegroundService(this, service);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == PERMISSION_ACCESS_LOCATION){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
-                startLocationService();
-            }
-            else{
-                Toast.makeText(
-                        this,
-                        "To use location you must grant location permissions",
-                        Toast.LENGTH_LONG
-                );
-            }
-        }
-    }
 
     private void registerLogOutBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();

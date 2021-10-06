@@ -45,8 +45,9 @@
         android:textColor="@color/design_default_color_on_primary" />
 
     <LinearLayout
+        android:id="@+id/userSettings_layoutUpdateUser"
         android:layout_width="354dp"
-        android:layout_height="397dp"
+        android:layout_height="200dp"
         android:layout_marginTop="@dimen/fab_margin"
         android:gravity="center_vertical"
         android:orientation="vertical"
@@ -83,6 +84,48 @@
             android:text="@string/update_user"
             android:textColor="@color/design_default_color_on_primary"
             android:layout_marginTop="@dimen/fab_margin"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/userSettings_layoutUpdateUser">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/location_service_settings"
+            android:layout_marginTop="@dimen/fab_margin"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/userSettings_NetworkBasedLocationSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/network_based_location"
+            android:layout_marginTop="@dimen/fab_margin"/>
+
+        <Button
+            android:id="@+id/userSettings_btnEnableService"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:background="@drawable/round_button"
+            android:text="@string/on"
+            android:textColor="@color/design_default_color_on_primary" />
+
+        <Button
+            android:id="@+id/userSettings_btnDisableService"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_button"
+            android:text="@string/off"
+            android:textColor="@color/design_default_color_on_primary"
+            android:layout_marginTop="@dimen/fab_margin"/>
+
+
+
     </LinearLayout>
 
 </RelativeLayout>
