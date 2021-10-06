@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.data_models.User;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -40,6 +41,7 @@ public class UsersData {
     private DatabaseReference dbReference;
     private static final String FIREBASE_CHILD = "users";
     private ArrayList<UsersListEventListener> updateListeners = new ArrayList<>();
+    private static final String FIRESTORE_CHILD = "profilePictures";
 
     public void setCurrentUserUID(String currentUserUID) {
         this.currentUserUID = currentUserUID;
@@ -48,8 +50,6 @@ public class UsersData {
     private String currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
     private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-    public static final String IMAGE_FORMAT = ".jpg";
-
 
     private final ChildEventListener childEventListener = new ChildEventListener() {
         private static final long MAX_SIZE = 1028 * 1028 * 20;
@@ -62,7 +62,7 @@ public class UsersData {
                 user.key = userKey;
                 try{
                     if (user.profilePictureUploaded){
-                        storageReference.child("profilePictures").child(user.key + IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                        storageReference.child(FIRESTORE_CHILD).child(user.key + Constants.IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                             @Override
                             public void onSuccess(byte[] bytes) {
                                 user.profilePicture= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
@@ -110,7 +110,7 @@ public class UsersData {
 
             if(usersKeyIndexMapping.containsKey(userKey)){
                 if (user.profilePictureUploaded) {
-                    storageReference.child("profilePictures").child(user.key + IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    storageReference.child(FIRESTORE_CHILD).child(user.key + Constants.IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                         @Override
                         public void onSuccess(byte[] bytes) {
                             user.profilePicture = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
@@ -135,7 +135,7 @@ public class UsersData {
             }
             else{
                 if (user.profilePictureUploaded){
-                    storageReference.child("profilePictures").child(user.key + IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    storageReference.child(FIRESTORE_CHILD).child(user.key + Constants.IMAGE_FORMAT).getBytes(MAX_SIZE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                         @Override
                         public void onSuccess(byte[] bytes) {
                             user.profilePicture= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
@@ -206,27 +206,6 @@ public class UsersData {
         dbReference = FirebaseDatabase.getInstance().getReference();
         currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-//        Query query = dbReference.child("users");
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                for(DataSnapshot ds: snapshot.getChildren()){
-//                    String userKey = ds.getKey();
-//                    if(!usersKeyIndexMapping.containsKey(userKey)){
-//                        User user = ds.getValue(User.class);
-//                        user.key = userKey;
-//                        users.add(user);
-//                        usersKeyIndexMapping.put(userKey, users.size() - 1);
-//                        Log.i("USER IN CTOR", "===========================ADDED USER  " + user.username);
-////                        todo insert code for profile picture retrieving
-//                    }
-//                }
-//            }
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
         startListeners();
     }
 
@@ -245,13 +224,13 @@ public class UsersData {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
         byte[] data = byteArrayOutputStream.toByteArray();
         if(getCurrentLoggedUser().profilePictureUploaded)
-            storageReference.child("profilePictures").child(currentUserUID + IMAGE_FORMAT).delete();
-        storageReference.child("profilePictures").child(currentUserUID + IMAGE_FORMAT).putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            storageReference.child(FIRESTORE_CHILD).child(currentUserUID + Constants.IMAGE_FORMAT).delete();
+        storageReference.child(FIRESTORE_CHILD).child(currentUserUID + Constants.IMAGE_FORMAT).putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 getUser(currentUserUID).profilePicture = bitmap;
                 getCurrentLoggedUser().profilePictureUploaded = true;
-                updateUser(currentUserUID);
+                updateUser(currentUserUID, context);
                 Toast.makeText(context, "Profile picture changed!", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -303,9 +282,14 @@ public class UsersData {
         return null;
     }
 
-    public void updateUser(String uid) {
+    public void updateUser(String uid, Context context) {
         User user = getUser(uid);
-        dbReference.child(FIREBASE_CHILD).child(user.key).setValue(user);
+        dbReference.child(FIREBASE_CHILD).child(user.key).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(context, "User profile updated!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public void addUpdateListener(UsersListEventListener listener) {

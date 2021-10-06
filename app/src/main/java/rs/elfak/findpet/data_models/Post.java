@@ -6,14 +6,14 @@ import android.graphics.drawable.Drawable;
 
 import com.google.firebase.database.Exclude;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import rs.elfak.findpet.Enums.CaseType;
 
-public class Post {
+public class Post implements Serializable {
     public Date timestamp;
     public String text;
-    public Bitmap image;
     public boolean IsFinished;
     public Location location;
     public User user;
@@ -22,4 +22,7 @@ public class Post {
 
     @Exclude
     public String key;
+
+    @Exclude
+    public transient Bitmap image;
 }

@@ -10,4 +10,8 @@ public class Constants {
     public static final int STORAGE_PERMISSION_CODE = 3000;
     public static final int CAMERA_PERMISSION_CODE = 3001;
     public static final String FRAGMENT_ENUM_KEY = "fragment";
+    public static final String IMAGE_FORMAT = ".jpg";
+    public static final int LOCATION_PERMISSION_CODE = 100;
+
+
 }

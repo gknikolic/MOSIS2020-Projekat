@@ -24,5 +24,9 @@
     <string name="fullname">Full Name</string>
     <string name="update_user">UPDATE USER</string>
     <string name="add_post">Add post</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="location_service_settings">Location Service Settings</string>
+    <string name="network_based_location">Network Based Location </string>
 
 </resources>
