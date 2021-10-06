@@ -31,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
+import rs.elfak.findpet.Enums.FragmentName;
 import rs.elfak.findpet.Fragments.DashboardFragment;
 import rs.elfak.findpet.Fragments.MapsFragment;
 import rs.elfak.findpet.Fragments.MessagesFragment;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView username;
     private TextView locationServiceStatus;
     private ImageView profileImage;
+    private FragmentName startupFragment = FragmentName.Dashboard;
     NavigationView navigationView;
     ProgressDialog progressDialog;
 
@@ -70,8 +72,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         InitSideBar(savedInstanceState);
         UsersData.getInstance().setCurrentUserUID(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        //show progressbar dialog
         LoadCurrentUser waitToLoadUser = new LoadCurrentUser();
         waitToLoadUser.execute();
+
+        Intent i = getIntent();
+        FragmentName possibleStartupFragment = (FragmentName) i.getSerializableExtra(Constants.FRAGMENT_ENUM_KEY);
+        if(possibleStartupFragment != null) {
+            this.startupFragment = possibleStartupFragment;
+        }
 
         this.startLocationService();
         this.registerLogOutBroadcastReceiver();
@@ -114,6 +124,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             this.locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));
             this.profileImage.setImageBitmap(currentUser.profilePicture);
         }
+    }
+
+    @Override
+    public void CurrentUserLoaded() {
+
     }
 
     @Override
@@ -227,43 +242,55 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //AsyncTask<params, progress, result>
     class LoadCurrentUser extends AsyncTask<Void, Integer, Boolean> implements UsersListEventListener{
 
-//        private boolean allLoaded = false;
+        protected boolean isLoaded = false;
 
         @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-            //users are populated through UserListEventListener
+
+            UsersData.getInstance().removeUpdateListener(this);
+
+            //switch to fragment on starting app
+            navigationView.getMenu().getItem(startupFragment.getValue()).setChecked(true);
+            onNavigationItemSelected(navigationView.getMenu().getItem(startupFragment.getValue()));
 
             progressDialog.dismiss();
-            UsersData.getInstance().removeUpdateListener(this);
+            Log.i("BACKGROUND_TASK", "Finished.");
         }
 
         @Override
         protected Boolean doInBackground(Void... usersData) {
-            while(UsersData.getInstance().getCurrentLoggedUser() == null)
-            {
-                try {
-                    Thread.currentThread().sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Log.i("MY_TASK", "Waiting for current user to be loaded");
-            }
-            Log.i("MY_TASK", "Current user is loaded.");
+            //bad solution because of pulling
+//            while(UsersData.getInstance().getCurrentLoggedUser() == null)
+//            {
+//                try {
+//                    Thread.currentThread().sleep(50);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                Log.i("BACKGROUND_TASK", "Waiting for current user to be loaded");
+//            }
+
+            while (isLoaded == false) {} //keep thread alive until callback for loaded current user is not called
+            Log.i("BACKGROUND_TASK", "Current user is loaded.");
             return true;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            Log.i("BACKGROUND_TASK", "Started.");
+
             UsersData.getInstance().addUpdateListener(this);
 
             // setup a progress dialog
             progressDialog = new ProgressDialog(MainActivity.this);
-            progressDialog.setCancelable(true);
+            progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setTitle("please wait..");
 
             progressDialog.show();
+
         }
 
         @Override
@@ -274,7 +301,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         @Override
         public void OnUsersListUpdated() {
+//            Log.i("BACKGROUND_TASK", "Callback");
+        }
 
+        @Override
+        public void CurrentUserLoaded() {
+            isLoaded = true;
         }
     }
 

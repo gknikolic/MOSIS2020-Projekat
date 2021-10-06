@@ -68,7 +68,10 @@ public class UsersData {
                                 user.profilePicture= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                                 users.add(user);
                                 usersKeyIndexMapping.put(userKey, users.size() - 1);
-                                notifyUserListListeners();
+                                notifyUsersListUpdated();
+                                if(user.key.equals(currentUserUID)) {
+                                    notifyCurrentUserLoaded();
+                                }
                                 Log.i("USER ON ADD", "===========================ADDED USER WITH PROFILE PICTURE " + user.username);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
@@ -77,7 +80,7 @@ public class UsersData {
                                 users.add(user);
                                 usersKeyIndexMapping.put(userKey, users.size()-1);
                                 Log.i("OnFailure", "##############################FAILED############################");
-                                notifyUserListListeners();
+                                notifyUsersListUpdated();
                             }
                         });
                     }
@@ -85,13 +88,16 @@ public class UsersData {
                         users.add(user);
                         usersKeyIndexMapping.put(userKey, users.size()-1);
                         Log.i("USER ON ADD", "===========================ADDED USER WITHOUT PROFILE PICTURE " + user.username);
-                        notifyUserListListeners();
+                        notifyUsersListUpdated();
+                        if(user.key.equals(currentUserUID)) {
+                            notifyCurrentUserLoaded();
+                        }
                     }
 
                 }catch (Exception e){
                     users.add(user);
                     usersKeyIndexMapping.put(userKey, users.size()-1);
-                    notifyUserListListeners();
+                    notifyUsersListUpdated();
                 }
             }
         }
@@ -110,21 +116,21 @@ public class UsersData {
                             user.profilePicture = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                             int index = usersKeyIndexMapping.get(userKey);
                             users.set(index, user);
-                            notifyUserListListeners();
+                            notifyUsersListUpdated();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             int index = usersKeyIndexMapping.get(userKey);
                             users.set(index, user);
-                            notifyUserListListeners();
+                            notifyUsersListUpdated();
                         }
                     });
                 }
                 else {
                     int index = usersKeyIndexMapping.get(userKey);
                     users.set(index, user);
-                    notifyUserListListeners();
+                    notifyUsersListUpdated();
                 }
             }
             else{
@@ -135,20 +141,20 @@ public class UsersData {
                             user.profilePicture= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                             users.add(user);
                             usersKeyIndexMapping.put(userKey, users.size() - 1);
-                            notifyUserListListeners();
+                            notifyUsersListUpdated();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             users.add(user);
                             usersKeyIndexMapping.put(userKey, users.size() - 1);
-                            notifyUserListListeners();
+                            notifyUsersListUpdated();
                         }
                     });
                 }else {
                     users.add(user);
                     usersKeyIndexMapping.put(userKey, users.size() - 1);
-                    notifyUserListListeners();
+                    notifyUsersListUpdated();
                 }
             }
         }
@@ -161,7 +167,7 @@ public class UsersData {
                 users.remove(index);
                 recreateKeyIndexMapping();
             }
-            notifyUserListListeners();
+            notifyUsersListUpdated();
         }
 
         @Override
@@ -185,7 +191,7 @@ public class UsersData {
     private final ValueEventListener parentEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
-            notifyUserListListeners();
+            notifyUsersListUpdated();
         }
 
         @Override
@@ -311,9 +317,15 @@ public class UsersData {
     }
 
     //this will update all view subscribed to users list db
-    private void notifyUserListListeners() {
+    private void notifyUsersListUpdated() {
         for (UsersListEventListener listener: updateListeners.toArray(new UsersListEventListener[0])) {
             listener.OnUsersListUpdated();
+        }
+    }
+
+    private void notifyCurrentUserLoaded() {
+        for (UsersListEventListener listener: updateListeners.toArray(new UsersListEventListener[0])) {
+            listener.CurrentUserLoaded();
         }
     }
 
