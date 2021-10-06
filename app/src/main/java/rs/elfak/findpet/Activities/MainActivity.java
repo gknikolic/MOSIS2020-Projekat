@@ -57,6 +57,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ProgressDialog progressDialog;
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        //TODO Check how this affect location service
+        int id= android.os.Process.myPid();
+        android.os.Process.killProcess(id);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
