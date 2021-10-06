@@ -8,19 +8,26 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.loader.content.AsyncTaskLoader;
 
 import android.Manifest;
+import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +35,9 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import rs.elfak.findpet.Enums.FragmentName;
 import rs.elfak.findpet.Fragments.DashboardFragment;
 import rs.elfak.findpet.Fragments.MapsFragment;
 import rs.elfak.findpet.Fragments.MessagesFragment;
@@ -50,13 +59,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView username;
     private TextView locationServiceStatus;
     private ImageView profileImage;
+    private ProgressDialog progressDialog;
     NavigationView navigationView;
+    FragmentName startupFragment = FragmentName.Dashboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        UsersData.getInstance().setUpdateListener(this);
 
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
         if(!sharedPreferences.getBoolean("isLogged", false)){
@@ -65,9 +75,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             finish();
         }
 
+        Intent i = getIntent();
+        FragmentName posibleStartupFragment = (FragmentName) i.getSerializableExtra(Constants.FRAGMENT_ENUM_KEY);
+        if(posibleStartupFragment != null) {
+            this.startupFragment = posibleStartupFragment;
+        }
+
         InitSideBar(savedInstanceState);
         UsersData.getInstance().setCurrentUserUID(FirebaseAuth.getInstance().getCurrentUser().getUid());
         UsersData.getInstance().setUpdateListener(this);
+        //block UI
+        LoadCurrentUser waitForCurrentUser = new LoadCurrentUser();
+        waitForCurrentUser.execute();
+
+        //select item in menu
+        MenuItem selectedMenuItem = navigationView.getMenu().getItem(startupFragment.getValue()).setChecked(true);
+        onNavigationItemSelected(selectedMenuItem);
 
         this.startLocationService();
         this.registerLogOutBroadcastReceiver();
@@ -84,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
 
         View header = navigationView.getHeaderView(0); //inflate header view
         this.username = header.findViewById(R.id.nav_header_username);
@@ -103,6 +125,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.currentUser = UsersData.getInstance().getCurrentLoggedUser();
         this.users = UsersData.getInstance().getUsers();
 
+        while(currentUser == null) {
+
+        }
+
         if(currentUser != null) {
             Log.i("USERS", "Callback for loading user data in main activity:  "  + currentUser.username);
             //header of sidebar
@@ -114,32 +140,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Bundle bundle = new Bundle();
         switch (item.getItemId()) {
             case R.id.nav_dashboard:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DashboardFragment()).commit();
+                openDashboardFragment();
                 break;
             case R.id.nav_message:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagesFragment()).commit();
+                openMessagesFragment();
                 break;
             case R.id.nav_map:
-                bundle.putSerializable(Constants.USER_KEY, currentUser);
-                bundle.putSerializable(Constants.FREINDS_KEY, users);
-                MapsFragment mapsFragment = new MapsFragment();
-                mapsFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapsFragment).commit();
+                openMapFragment();
                 break;
             case R.id.nav_user:
                 if(currentUser != null) {
-                    bundle.putSerializable(Constants.USER_KEY, currentUser);
-                    UserFragment userFragment = new UserFragment();
-                    userFragment.setArguments(bundle);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
-                    break;
+                    openUserFragment();
                 }else {
                     Toast.makeText(this, "User not fetched yet. Please wait", Toast.LENGTH_LONG).show();
-                    break;
                 }
+                break;
             case R.id.nav_log_out:
                 LogOut();
                 break;
@@ -147,6 +164,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    void openDashboardFragment() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DashboardFragment()).commit();
+    }
+
+    void openMessagesFragment() {
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagesFragment()).commit();
+    }
+
+    void openMapFragment() {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Constants.USER_KEY, currentUser);
+        bundle.putSerializable(Constants.FREINDS_KEY, users);
+        MapsFragment mapsFragment = new MapsFragment();
+        mapsFragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapsFragment).commit();
+    }
+
+    void openUserFragment() {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Constants.USER_KEY, currentUser);
+        UserFragment userFragment = new UserFragment();
+        userFragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
     }
 
     @Override
@@ -220,4 +262,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(i);
     }
 
+    //AsyncTask<params, progress, result>
+    class LoadCurrentUser extends AsyncTask<Void, Integer, Boolean> {
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            //users are populated through UserListEventListener
+
+            progressDialog.dismiss();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... usersData) {
+            while(currentUser == null) //current user will be set through UserListEvenListener implementation
+            {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.i("MY TASK", "Waiting to load Current user");
+            }
+            Log.i("MY TASK DONE", "Current user loaded");
+
+            return true;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // setup a progress dialog
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setCancelable(true);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+//            progressDialog.setProgress(values[0]);
+        }
+    }
 }
