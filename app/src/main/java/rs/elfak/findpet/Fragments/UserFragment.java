@@ -78,16 +78,7 @@ public class UserFragment extends Fragment {
         btnChangeProfilePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ActivityCompat.checkSelfPermission(getActivity(),
-                        Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                {
-                    requestPermissions(
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            Constants.STORAGE_PERMISSION_CODE);
-                }
-                else {
-                    startDialog();
-                }
+                startDialog();
             }
         });
 

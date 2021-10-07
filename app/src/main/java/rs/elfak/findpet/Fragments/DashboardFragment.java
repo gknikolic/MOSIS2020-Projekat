@@ -24,18 +24,22 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import rs.elfak.findpet.Adapters.PostsRecViewAdapter;
+import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.R;
+import rs.elfak.findpet.Repositories.PostsData;
 import rs.elfak.findpet.Repositories.UsersData;
+import rs.elfak.findpet.RepositoryEventListeners.PostsListEventListener;
 import rs.elfak.findpet.data_models.Location;
 import rs.elfak.findpet.data_models.Pet;
 import rs.elfak.findpet.data_models.Post;
 import rs.elfak.findpet.data_models.User;
 
-public class DashboardFragment extends Fragment {
+public class DashboardFragment extends Fragment implements PostsListEventListener {
     private RecyclerView postsRecView;
     private TextView username;
     private FloatingActionButton fab;
+//    private PostsRecViewAdapter adapter;
 
     @Nullable
     @Override
@@ -50,20 +54,15 @@ public class DashboardFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null)
-                        .show();
+                AddPostFragment addPostFragment = new AddPostFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, addPostFragment).commit();
             }
         });
-
+        PostsData.getInstance().setUpdateListener(this);
         postsRecView = getView().findViewById(R.id.posts_rec_view);
-
-        ArrayList<Post> posts = new ArrayList<>();
-        posts = HardcodePosts();
-        //TODO Populate posts from db
-
         PostsRecViewAdapter adapter = new PostsRecViewAdapter();
-        adapter.setPosts(posts);
+        adapter.setPosts(PostsData.getInstance().getPosts());
 
         postsRecView.setAdapter(adapter);
         postsRecView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -71,34 +70,12 @@ public class DashboardFragment extends Fragment {
         this.username = getView().findViewById(R.id.nav_user);
     }
 
-    private ArrayList<Post> HardcodePosts() {
-        ArrayList<Post> posts = new ArrayList<>();
-        Post post = new Post();
-        post.user = new User();
-        post.pet = new Pet();
-        post.location = new Location();
-        post.user.username = "Nemanja";
-        post.user.phoneNumber="0648546006";
-        post.location = new Location(43.3191867, 21.9121003);
-        post.text = "Izgubljen je pas star oko 2 godine, odaziva se na ime Džeki.";
-        post.timestamp = new Date(System.currentTimeMillis());
-        post.image = Helpers.bitmapFromUrl("https://images.unsplash.com/photo-1583337130417-3346a1be7dee?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cGV0c3xlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80");
-        post.user.profilePicture = Helpers.bitmapFromUrl("https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cHJvZmlsZXxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&w=1000&q=80");
-        posts.add(post);
-        post = new Post();
-        post.user = new User();
-        post.pet = new Pet();
-        post.location = new Location();
-        post.user.username = "Zeljko";
-        post.user.phoneNumber="0648546006";
-        post.location = new Location(43.3191867, 21.9121003);
-        post.text = "Izgubljen je pas star.";
-        post.timestamp = new Date(System.currentTimeMillis());
-        post.image = Helpers.bitmapFromUrl("https://images.indianexpress.com/2021/04/puppy-1903313_1280.jpg");
-        post.user.profilePicture = Helpers.bitmapFromUrl("https://st.depositphotos.com/2101611/3925/v/600/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg");
-        posts.add(post);
+    @Override
+    public void OnPostsListUpdated() {
+        PostsRecViewAdapter adapter = new PostsRecViewAdapter();
+        adapter.setPosts(PostsData.getInstance().getPosts());
 
-        return posts;
-
+        postsRecView.setAdapter(adapter);
+        postsRecView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 }

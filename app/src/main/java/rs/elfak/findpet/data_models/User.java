@@ -32,7 +32,7 @@ public class User implements Serializable, Parcelable {
         this.fullName = fullName;
         this.location = new Location();
         this.totalPoints = 0;
-        this.locationEnabled = true; //todo change to false!!!!
+        this.locationEnabled = false;
     }
 
     protected User(Parcel in) {

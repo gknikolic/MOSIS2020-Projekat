@@ -41,7 +41,7 @@ public class PostsData {
     private final DatabaseReference dbReference;
     private static final String FIREBASE_CHILD = "posts";
     public static final String FIRESTORE_CHILD = "postsImages";
-    private static final long MAX_SIZE = 1024 * 1024;
+    private static final long MAX_SIZE = 1024 * 1024 * 4;
     private PostsListEventListener updateListener;
     private final StorageReference storageReference;
 
@@ -54,7 +54,7 @@ public class PostsData {
                 Post post = snapshot.getValue(Post.class);
                 post.key = postKey;
                 try{
-                    fetchPostImage(post, true);
+                    fetchPostImage(post, false);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -126,12 +126,13 @@ public class PostsData {
                     else {
                         addPost(post);
                     }
-                    Log.i("USER ON ADD", "=========================== POST KEY: " + post.key);
+                    Log.i("POST IMAGE FETCHED", "=========================== POST KEY: " + post.key);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Log.i("OnFailure", "############################## GET POST PICTURE FAILED ############################");
+                    e.printStackTrace();
                     if(updateExisting) {
                         updateLocalPost(post);
                     }
@@ -199,13 +200,13 @@ public class PostsData {
         return posts;
     }
 
-    public void addNewPost(Post post) {
+    public void addNewPost(Post post, Context context) {
         DatabaseReference newPostRef = dbReference.child(FIREBASE_CHILD).push();
         String key = newPostRef.getKey();
+        post.key = key;
         posts.add(post);
         postsKeyIndexMapping.put(key, posts.size() - 1);
         newPostRef.setValue(post);
-
         if(post.image != null){
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             post.image.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
@@ -215,11 +216,13 @@ public class PostsData {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Log.i(TAG, "Post picture uploaded");
+                    Toast.makeText(context, "Post data successfully added", Toast.LENGTH_LONG).show();
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Log.w("", "Error occurred! Post picture not added.");
+                    Toast.makeText(context, "Post data added, picture failed to add!", Toast.LENGTH_LONG).show();
                 }
             });
         }

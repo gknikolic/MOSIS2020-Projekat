@@ -77,7 +77,6 @@ public class LoginActivity extends AppCompatActivity {
                             Log.i(TAG, mAuth.getCurrentUser().getUid());
                             sharedPreferences.edit().putBoolean("isLogged", true).apply();
                             sharedPreferences.edit().putString("email", email);
-                            //TODO put user id in sharedPreferences
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();

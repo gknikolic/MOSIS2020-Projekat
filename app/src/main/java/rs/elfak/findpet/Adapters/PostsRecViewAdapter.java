@@ -1,5 +1,6 @@
 package rs.elfak.findpet.Adapters;
 
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,9 @@ import java.util.ArrayList;
 
 import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.R;
+import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.data_models.Post;
+import rs.elfak.findpet.data_models.User;
 
 public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapter.ViewHolder> {
 
@@ -36,8 +39,9 @@ public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //header
-        holder.userImage.setImageBitmap(posts.get(position).user.profilePicture);
-        holder.userName.setText(posts.get(position).user.username);
+        Bitmap userProfileImage = getUserProfileImage(position);
+        holder.userImage.setImageBitmap(userProfileImage);
+        holder.userName.setText(getUserUsername(position));
         holder.timestamp.setText(Helpers.formatDate(posts.get(position).timestamp));
 
         //post details
@@ -70,6 +74,22 @@ public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapte
             }
         });
 
+    }
+
+    private String getUserUsername(int position) {
+        String userKey = posts.get(position).userKey;
+        User user = UsersData.getInstance().getUser(userKey);
+        if(user != null)
+            return user.username;
+        return null;
+    }
+
+    private Bitmap getUserProfileImage(int position) {
+        String userKey = posts.get(position).userKey;
+        User user = UsersData.getInstance().getUser(userKey);
+        if(user != null)
+            return user.profilePicture;
+        return null;
     }
 
     @Override

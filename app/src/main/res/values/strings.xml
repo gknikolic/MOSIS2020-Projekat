@@ -28,5 +28,11 @@
     <string name="off">Off</string>
     <string name="location_service_settings">Location Service Settings</string>
     <string name="network_based_location">Network Based Location </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_photo">Add photo</string>
+    <string name="add_short_description">Add short description</string>
+    <string name="pet_name">Pet name</string>
+    <string name="add_new_post">Add New Post</string>
 
 </resources>

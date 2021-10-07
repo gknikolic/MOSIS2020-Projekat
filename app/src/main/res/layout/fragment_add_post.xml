@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.FindPet"
+    android:padding="@dimen/fragmentPadding">
+
+    <ImageView
+        android:id="@+id/addPost_petPicture"
+        android:layout_width="300dp"
+        android:layout_height="@dimen/userSettings_userImage"
+        android:src="@mipmap/ic_launcher_round"
+        android:scaleType="centerCrop"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/addPost_btnAddPicture"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/addPost_petPicture"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:background="@drawable/round_button"
+        android:paddingLeft="@dimen/fragmentPadding"
+        android:paddingRight="@dimen/fragmentPadding"
+        android:text="@string/add_photo"
+        android:textColor="@color/design_default_color_on_primary" />
+
+    <EditText
+        android:id="@+id/addPost_petName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/round_input"
+        android:hint="@string/pet_name"
+        android:textColor="@color/design_default_color_primary"
+        android:textColorHint="@color/design_default_color_primary"
+        android:layout_below="@+id/addPost_btnAddPicture"/>
+
+    <EditText
+        android:id="@+id/addPost_description"
+        android:layout_below="@+id/addPost_petName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/round_input"
+        android:hint="@string/add_short_description"
+        android:textColor="@color/design_default_color_primary"
+        android:textColorHint="@color/design_default_color_primary"/>
+
+    <Spinner
+        android:id="@+id/addPost_caseTypeSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_below="@+id/addPost_description" />
+
+    <Spinner
+        android:id="@+id/addPost_petTypeSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_below="@+id/addPost_caseTypeSpinner"/>
+
+    <Button
+        android:id="@+id/addPost_btnAddNewPost"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/addPost_petTypeSpinner"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/round_button"
+        android:paddingLeft="@dimen/fragmentPadding"
+        android:paddingRight="@dimen/fragmentPadding"
+        android:text="@string/add_new_post"
+        android:textColor="@color/design_default_color_on_primary" />
+
+
+
+
+</RelativeLayout>
