@@ -1,39 +1,26 @@
 package rs.elfak.findpet.Fragments;
 
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.service.controls.actions.FloatAction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Objects;
 
 import rs.elfak.findpet.Adapters.PostsRecViewAdapter;
+import rs.elfak.findpet.Fragments.Communicators.FragmentCommunicator;
 import rs.elfak.findpet.Helpers.Constants;
-import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.PostsData;
-import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.PostsListEventListener;
-import rs.elfak.findpet.data_models.Location;
-import rs.elfak.findpet.data_models.Pet;
-import rs.elfak.findpet.data_models.Post;
-import rs.elfak.findpet.data_models.User;
+import rs.elfak.findpet.data_models.PetFilterModel;
 
 public class DashboardFragment extends Fragment implements PostsListEventListener {
     private RecyclerView postsRecView;
@@ -44,7 +31,27 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_dashboard, container, false);
+        View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
+
+        postsRecView = view.findViewById(R.id.posts_rec_view);
+        PostsRecViewAdapter adapter = new PostsRecViewAdapter();
+        adapter.setPosts(PostsData.getInstance().getPosts());
+        adapter.setCommunicator(new FragmentCommunicator() {
+            @Override
+            public void showPetOnMap(PetFilterModel filterModel) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(Constants.USER_KEY, filterModel.userKey);
+                //bundle.putSerializable(Constants.FREINDS_KEY, users);
+                PetsFragment petsFragment = new PetsFragment(new PetFilterModel());
+                petsFragment.setArguments(bundle);
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
+            }
+        });
+
+        postsRecView.setAdapter(adapter);
+        postsRecView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        return  view;
     }
 
     @Override
@@ -62,12 +69,6 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
             }
         });
 
-        postsRecView = getView().findViewById(R.id.posts_rec_view);
-        PostsRecViewAdapter adapter = new PostsRecViewAdapter();
-        adapter.setPosts(PostsData.getInstance().getPosts());
-
-        postsRecView.setAdapter(adapter);
-        postsRecView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         this.username = getView().findViewById(R.id.nav_user);
     }

@@ -36,6 +36,7 @@ import rs.elfak.findpet.R;
 import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.User;
 import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
+import rs.elfak.findpet.data_models.UserClusterMarker;
 
 public class FriendsFragment extends Fragment {
 
@@ -175,7 +176,7 @@ public class FriendsFragment extends Fragment {
                         Log.d("MAPS", "addMapMarkers: no avatar for " + friend.username + ", setting default.");
                     }
                     if(friend.location != null) {
-                        ClusterMarker newClusterMarker = new ClusterMarker(
+                        UserClusterMarker newClusterMarker = new UserClusterMarker(
                                 friend.location.getLocation(),
                                 friend.username,
                                 snippet,
@@ -233,7 +234,7 @@ public class FriendsFragment extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 ClusterMarker marker = clusterSpinnerAdapter.getItem(i);
                 cameraZoomToLocation(marker.position);
-                Log.i("MOVE MARKER", "selected user: " + marker.user);
+                Log.i("MOVE MARKER", "selected user: " + marker.toString());
             }
 
             @Override

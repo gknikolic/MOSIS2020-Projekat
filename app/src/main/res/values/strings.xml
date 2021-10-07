@@ -40,5 +40,7 @@
     <string name="pets">Pets</string>
     <string name="progressDialogTitle">please wait ...</string>
     <string name="spinnerPlaceholder">all</string>
+    <string name="preparing_map">Preparing map, please wait...</string>
+    <string name="filtering">Filtering...</string>
 
 </resources>

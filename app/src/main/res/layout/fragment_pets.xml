@@ -15,7 +15,7 @@
     <Spinner
         android:id="@+id/petsFragment_caseTypeSpinner"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/spinnerHeight"
         android:layout_marginTop="@dimen/input_margin"
         android:layout_below="@+id/petsFragment_name"
         android:layout_marginBottom="@dimen/fab_margin" />
@@ -23,7 +23,7 @@
     <Spinner
         android:id="@+id/petsFragment_petTypeSpinner"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/spinnerHeight"
         android:layout_marginTop="@dimen/input_margin"
         android:layout_below="@+id/petsFragment_caseTypeSpinner"/>
 
@@ -49,15 +49,34 @@
             android:background="@drawable/round_button"
             android:textColor="@color/design_default_color_on_primary"
             android:text="@string/clear_filters" />
+
+
     </LinearLayout>
 
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/petsFragment_resultCount"
+        android:layout_above="@+id/petsFragment_petsFoundedSpinner"
+        android:layout_marginBottom="@dimen/fragmentPadding"
+        android:text="Founded: 0"
+        />
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/spinnerHeight"
+        android:id="@+id/petsFragment_petsFoundedSpinner"
+        android:layout_above="@id/petsFragment_map"
+        android:layout_marginBottom="@dimen/fab_margin"
+        />
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/petsFragment_map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="300dp"
         android:layout_alignParentBottom="true"
         android:theme="@style/Theme.FindPet"
         tools:context=".Fragments.PetsFragment" />

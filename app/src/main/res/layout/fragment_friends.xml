@@ -9,7 +9,7 @@
     <Spinner
         android:id="@+id/friendsFragment_markersSpinner"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/spinnerHeight"
         android:layout_marginBottom="@dimen/fab_margin" />
 
     <Button

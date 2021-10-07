@@ -14,6 +14,7 @@ import java.util.List;
 
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.data_models.ClusterMarker;
+import rs.elfak.findpet.data_models.UserClusterMarker;
 
 public class ClusterSpinnerAdapter extends ArrayAdapter<ClusterMarker> {
     // Your sent context
@@ -56,7 +57,7 @@ public class ClusterSpinnerAdapter extends ArrayAdapter<ClusterMarker> {
         }
 
         TextView label = (TextView) convertView;
-        label.setText(values.get(position).user.username);
+        label.setText(values.get(position).toString()); //polymorphism
 
         return convertView;
     }
@@ -71,7 +72,7 @@ public class ClusterSpinnerAdapter extends ArrayAdapter<ClusterMarker> {
         }
 
         TextView label = (TextView) convertView;
-        label.setText(values.get(position).user.username);
+        label.setText(values.get(position).toString());
 
         return convertView;
     }

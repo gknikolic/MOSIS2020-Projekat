@@ -81,42 +81,50 @@
             android:layout_marginTop="@dimen/fab_margin"/>
 
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
+        android:layout_below="@+id/userSettings_layoutUpdateUser"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/userSettings_layoutUpdateUser">
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/location_service_settings"
-            android:layout_marginTop="@dimen/fab_margin"/>
+            android:layout_marginTop="@dimen/fab_margin"
+            android:text="@string/location_service_settings" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/userSettings_NetworkBasedLocationSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/network_based_location"
-            android:layout_marginTop="@dimen/fab_margin"/>
-
-        <Button
-            android:id="@+id/userSettings_btnEnableService"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fab_margin"
-            android:background="@drawable/round_button"
-            android:text="@string/on" />
+            android:text="@string/network_based_location" />
 
-        <Button
-            android:id="@+id/userSettings_btnDisableService"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/round_button"
-            android:text="@string/off"
-            android:layout_marginTop="@dimen/fab_margin"/>
+            android:orientation="horizontal"
+            android:layout_margin="@dimen/fab_margin">
 
+            <Button
+                android:id="@+id/userSettings_btnEnableService"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/round_button"
+                android:text="@string/on" />
+
+            <Button
+                android:id="@+id/userSettings_btnDisableService"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/fab_margin"
+                android:background="@drawable/round_button"
+                android:text="@string/off" />
+
+        </LinearLayout>
 
 
     </LinearLayout>

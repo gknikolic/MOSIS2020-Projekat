@@ -7,19 +7,18 @@ import com.google.maps.android.clustering.ClusterItem;
 
 import java.io.Serializable;
 
-public class ClusterMarker implements ClusterItem, Serializable {
+public abstract class ClusterMarker implements ClusterItem, Serializable {
     public LatLng position;
     public String title;
     public String snippet;
     public Bitmap iconPicture;
-    public User user;
 
-    public ClusterMarker(LatLng position, String title, String snippet, Bitmap iconPicture, User user) {
+
+    public ClusterMarker(LatLng position, String title, String snippet, Bitmap iconPicture) {
         this.position = position;
         this.title = title;
         this.snippet = snippet;
         this.iconPicture = iconPicture;
-        this.user = user;
     }
 
     public ClusterMarker() {
@@ -41,8 +40,4 @@ public class ClusterMarker implements ClusterItem, Serializable {
         return snippet;
     }
 
-    @Override
-    public String toString() {
-        return user.username; // What to display in the Spinner list.
-    }
 }

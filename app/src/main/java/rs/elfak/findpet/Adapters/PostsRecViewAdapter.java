@@ -3,7 +3,6 @@ package rs.elfak.findpet.Adapters;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +12,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import rs.elfak.findpet.Fragments.PetsFragment;
-import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.Fragments.Communicators.FragmentCommunicator;
 import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
@@ -36,8 +32,15 @@ public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapte
     //for relationship
     private HashMap<String, User> userOfPost = new HashMap<>();
 
+    //event listener
+    private FragmentCommunicator communicator;
+
     public PostsRecViewAdapter() {
 
+    }
+
+    public void setCommunicator(FragmentCommunicator communicator) {
+        this.communicator = communicator;
     }
 
     @NonNull
@@ -95,6 +98,10 @@ public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapte
                 filterModel.petType = posts.get(i).pet.type;
                 filterModel.caseType = posts.get(i).caseType;
                 filterModel.postKey = posts.get(i).key;
+
+                //HACK
+                //there are not other way to get FragmentManager and go to other fragment
+                communicator.showPetOnMap(filterModel);
 
 //                Bundle bundle = new Bundle();
 //                bundle.putSerializable(Constants.USER_KEY, userOfPost.get(posts.get(i).userKey));

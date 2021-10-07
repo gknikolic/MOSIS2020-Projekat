@@ -3,13 +3,13 @@ package rs.elfak.findpet.Fragments;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -36,10 +36,13 @@ import rs.elfak.findpet.Enums.CaseType;
 import rs.elfak.findpet.Enums.PetType;
 import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.R;
+import rs.elfak.findpet.Repositories.UsersData;
+import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
 import rs.elfak.findpet.data_models.ClusterMarker;
-import rs.elfak.findpet.data_models.Pet;
+import rs.elfak.findpet.data_models.PetClusterMarker;
 import rs.elfak.findpet.data_models.PetFilterModel;
+import rs.elfak.findpet.data_models.Post;
 import rs.elfak.findpet.data_models.User;
 
 public class PetsFragment extends Fragment {
@@ -47,7 +50,7 @@ public class PetsFragment extends Fragment {
     //params from main activity
     private User currentUser;
     private ArrayList<User> users;
-    private ArrayList<Pet> pets;
+    private ArrayList<Post> posts;
     private PetFilterModel filterModel;
 
     //for maps
@@ -56,9 +59,11 @@ public class PetsFragment extends Fragment {
     private MyClusterManagerRenderer mClusterManagerRenderer;
     private ClusterSpinnerAdapter clusterSpinnerAdapter;
     private List<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
+    private boolean isMapReady = false; //use for background post
 
     //widgets
-    private ProgressDialog progressDialog;
+    private ProgressDialog progressDialogForMaps;
+    private ProgressDialog progressDialogForFiltering;
     private GoogleMap map;
     private Spinner caseTypeSpinner;
     private Spinner petTypeSpinner;
@@ -88,12 +93,12 @@ public class PetsFragment extends Fragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.friendsFragment_map);
         if (mapFragment != null) {
             // setup a progress dialog
-            progressDialog = new ProgressDialog(getContext());
-            progressDialog.setCancelable(false);
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.setTitle(R.string.progressDialogTitle);
+            progressDialogForMaps = new ProgressDialog(getContext());
+            progressDialogForMaps.setCancelable(false);
+            progressDialogForMaps.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialogForMaps.setTitle(R.string.progressDialogTitle);
 
-            progressDialog.show();
+            progressDialogForMaps.show();
             mapFragment.getMapAsync(callback);
         }
 
@@ -207,7 +212,7 @@ public class PetsFragment extends Fragment {
             //TODO create marker with picture for pets or use basic markers?
 //            addMapMarkers();
 //            initMarkersSpinner();
-            progressDialog.dismiss();
+            progressDialogForMaps.dismiss();
 
             Log.i("MAPS", "On map create method");
         }
@@ -238,33 +243,28 @@ public class PetsFragment extends Fragment {
             }
 
             //TODO Add filter for friends only
-            for (User friend : users) {
+            for (Post post : posts) {
 
 //                Log.d("CLUSTER_MARKER", "addMapMarkers: location: " + userLocation.getGeo_point().toString());
                 try {
-                    String snippet = "";
-                    if (friend.getUser_id().equals(currentUser.getUser_id())) {
-                        snippet = "This is you";
-                    } else {
-                        snippet = "Determine route to " + friend.username + "?";
-                    }
+                    String snippet = "Owner: " + UsersData.getInstance().getUser(post.userKey).username;
 
                     Bitmap avatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar);
                     ; // set the default avatar
                     try {
-                        if (friend.profilePicture != null) {
-                            avatar = friend.profilePicture;
+                        if (post.image != null) {
+                            avatar = post.image;
                         }
                     } catch (NumberFormatException e) {
-                        Log.d("MAPS", "addMapMarkers: no avatar for " + friend.username + ", setting default.");
+                        Log.d("MAPS", "addMapMarkers: no avatar for postKey:" + post.key + " for pet " + post.pet.name + ", setting default.");
                     }
-                    if (friend.location != null) {
-                        ClusterMarker newClusterMarker = new ClusterMarker(
-                                friend.location.getLocation(),
-                                friend.username,
+                    if (post.location != null) {
+                        ClusterMarker newClusterMarker = new PetClusterMarker(
+                                post.location.getLocation(),
+                                post.toString(),
                                 snippet,
                                 avatar,
-                                friend
+                                post
                         );
                         mClusterManager.addItem(newClusterMarker);
                         mClusterMarkers.add(newClusterMarker);
@@ -284,6 +284,11 @@ public class PetsFragment extends Fragment {
 
     }
 
+    private void clearAllMarkersFromMap() {
+        //TODO Implement
+    }
+
+
     /**
      * Determines the view boundary then sets the camera
      * Sets the view
@@ -302,6 +307,65 @@ public class PetsFragment extends Fragment {
         );
 
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary, 0));
+    }
+
+    //AsyncTask<params, progress, result>
+    class ApplyFilter extends AsyncTask<Void, Integer, Boolean> implements UsersListEventListener {
+
+        PetFilterModel myFilterModel;
+
+        protected boolean isLoaded = false;
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            progressDialogForFiltering.dismiss();
+            Log.i("BACKGROUND_TASK", "Finished.");
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... usersData) {
+            while (isMapReady == false) {} //keep thread alive until callback for getting map ready finished
+            Log.i("BACKGROUND_TASK", "Callback for getting map ready finished");
+
+
+            Log.i("BACKGROUND_TASK", "Filters are applied");
+            return true;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.i("BACKGROUND_TASK", "Started.");
+
+            // setup a progress dialog
+            progressDialogForFiltering = new ProgressDialog(getContext());
+            progressDialogForFiltering.setCancelable(false);
+            progressDialogForFiltering.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialogForFiltering.setTitle(R.string.filtering);
+
+            progressDialogForFiltering.show();
+
+            myFilterModel = filterModel;
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+//            progressDialog.setProgress(values[0]);
+        }
+
+        @Override
+        public void OnUsersListUpdated() {
+//            Log.i("BACKGROUND_TASK", "Callback");
+        }
+
+        @Override
+        public void CurrentUserLoaded() {
+            isLoaded = true;
+        }
     }
 
 }

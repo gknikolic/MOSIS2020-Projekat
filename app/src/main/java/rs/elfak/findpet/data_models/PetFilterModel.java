@@ -8,6 +8,7 @@ public class PetFilterModel {
     public PetType petType;
     public CaseType caseType;
     public String postKey; //for showing only one pet (exp. After ViewOnMap clicked on Dashboard Fragment)
+    public String userKey;
 
     public PetFilterModel() {
     }
