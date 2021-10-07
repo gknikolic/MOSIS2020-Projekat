@@ -15,7 +15,10 @@ import androidx.core.content.ContextCompat;
 
 import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.RepositoryEventListeners.PostsListEventListener;
+import rs.elfak.findpet.data_models.PetFilterModel;
 import rs.elfak.findpet.data_models.Post;
+import rs.elfak.findpet.data_models.User;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,6 +36,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class PostsData {
     private static final String TAG = "PostsData";
@@ -232,6 +237,90 @@ public class PostsData {
 
     public void updatePost(String key, Post postUpdated) {
         dbReference.child(FIREBASE_CHILD).child(key).setValue(postUpdated);
+    }
+
+    public ArrayList<Post> filterPosts(PetFilterModel filterModel){
+//        HashMap<String, Boolean> filteredResults = new HashMap<String, Boolean>();
+//        for(Post post: posts){
+//            if(filterModel.petType == null)
+//                filteredResults.put(post.key, true);
+//            else if(post.pet.type == filterModel.petType)
+//                filteredResults.put(post.key, true);
+//        }
+//        if(filterModel.caseType != null) {
+//            Iterator<String> iterator = filteredResults.keySet().iterator();
+//            while (iterator.hasNext()) {
+//                String key = iterator.next();
+//                int index = postsKeyIndexMapping.get(key);
+//                Post post = posts.get(index);
+//                if (post.caseType != filterModel.caseType) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
+//        if(filterModel.name != null) {
+//            Iterator<String> iterator = filteredResults.keySet().iterator();
+//            while (iterator.hasNext()) {
+//                String key = iterator.next();
+//
+//                int index = postsKeyIndexMapping.get(key);
+//                Post post = posts.get(index);
+//                if (post.pet.name != filterModel.name) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
+//        if(filterModel.radius != -1) {
+//            Iterator<String> iterator = filteredResults.keySet().iterator();
+//            while (iterator.hasNext()) {
+//                String key = iterator.next();
+//                int index = postsKeyIndexMapping.get(key);
+//                Post post = posts.get(index);
+//                double distance = measureCurrentUserToPostDistance(post);
+//                if (distance > filterModel.radius) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
+        ArrayList<Post> filteredResults = new ArrayList<>();
+        for(Post post: posts){
+            if(filterModel.caseType != null){
+                if(filterModel.caseType != post.caseType){
+                    continue;
+                }
+            }
+            if(filterModel.petType != null){
+                if(filterModel.petType != post.pet.type){
+                    continue;
+                }
+            }
+            if(filterModel.name != null){
+                if(!filterModel.name.equals(post.pet.name)){
+                    continue;
+                }
+            }
+            if(filterModel.radius != -1){
+                double distance = measureCurrentUserToPostDistance(post);
+                if (distance > (double)filterModel.radius) {
+                    continue;
+                }
+            }
+            filteredResults.add(post);
+        }
+        return filteredResults;
+    }
+
+    private double measureCurrentUserToPostDistance(Post post) {
+        float[] distance = new float[1];
+        User user = UsersData.getInstance().getCurrentLoggedUser();
+        Location.distanceBetween(
+                post.location.latitude,
+                post.location.longitude,
+                user.location.latitude,
+                user.location.longitude,
+                distance
+        );
+        return distance[0];
     }
 
     public void addUpdateListener(PostsListEventListener listener) {
