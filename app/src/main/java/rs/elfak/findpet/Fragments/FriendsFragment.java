@@ -2,11 +2,15 @@ package rs.elfak.findpet.Fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import android.app.ProgressDialog;
+import android.app.TaskInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +28,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
@@ -32,7 +38,10 @@ import java.util.List;
 import rs.elfak.findpet.Adapters.ClusterSpinnerAdapter;
 import rs.elfak.findpet.Enums.CaseType;
 import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.Helpers.GetArrayListFromStream;
 import rs.elfak.findpet.R;
+import rs.elfak.findpet.Repositories.UsersData;
+import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.User;
 import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
@@ -43,6 +52,7 @@ public class FriendsFragment extends Fragment {
     //params from main activity
     private User currentUser;
     private ArrayList<User> users;
+    private boolean showOtherUsers = false;
 
     //for maps
     private LatLngBounds mMapBoundary;
@@ -57,6 +67,7 @@ public class FriendsFragment extends Fragment {
     private GoogleMap map;
     private Spinner caseTypeSpinner;
     private Spinner markersSpinner;
+    private SwitchCompat showOtherUsersSwitch;
 
     @Nullable
     @Override
@@ -85,6 +96,26 @@ public class FriendsFragment extends Fragment {
         }
 
         markersSpinner = (Spinner) getView().findViewById(R.id.friendsFragment_markersSpinner); //adapter for this spinner is set after markers added in onMapReady function
+        showOtherUsersSwitch = (SwitchCompat) getView().findViewById(R.id.friendsFragment_showOtherUsers);
+        showOtherUsersSwitch.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View view) {
+                if(showOtherUsersSwitch.isChecked()) {
+                    UsersData.getInstance().addUpdateListener(userCallback);
+                    addMapMarkersWithPicture(null).addOnSuccessListener(new OnSuccessListener() {
+                        @Override
+                        public void onSuccess(Object o) {
+                            clusterSpinnerAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+                else {
+                    UsersData.getInstance().removeUpdateListener(userCallback);
+                }
+            }
+        });
+
 
         btnMyMarker = view.findViewById(R.id.friendsFragment_btnZoomMyMarker);
         btnMyMarker.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +130,23 @@ public class FriendsFragment extends Fragment {
 
     }
 
+    protected UsersListEventListener userCallback = new UsersListEventListener() {
+        @Override
+        public void OnUsersListUpdated() {
+
+        }
+
+        @Override
+        public void CurrentUserLoaded() {
+
+        }
+
+        @Override
+        public void OnUserLocationChanged(String userKey) {
+            changeUserLocationOnMap(userKey);
+        }
+    };
+
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         /**
@@ -110,6 +158,7 @@ public class FriendsFragment extends Fragment {
          * install it inside the SupportMapFragment. This method will only be triggered once the
          * user has installed Google Play services and returned to the app.
          */
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
@@ -119,11 +168,21 @@ public class FriendsFragment extends Fragment {
 //            map.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
 //            cameraZoomToLocation(myLocation);
 
-            //TODO create marker with picture, only for friends
-            addMapMarkers();
-
             initMarkersSpinner();
+
+            //on app start add only current user
+            Tasl<void> task = new Task<>() {
+                addMapMarkersWithPicture(currentUser.key).addOnSuccessListener(new OnSuccessListener() {
+                    @Override
+                    public void onSuccess(Object o) {
+                        clusterSpinnerAdapter.notifyDataSetChanged();
+                    }
+                });
+            };
+
+
             progressDialog.dismiss();
+
 
             Log.i("MAPS", "On map create method");
         }
@@ -138,7 +197,8 @@ public class FriendsFragment extends Fragment {
         map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
     }
 
-    private void addMapMarkers(){
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void addMapMarkersWithPicture(@Nullable String userKey){
 
         if(map != null){
 
@@ -154,8 +214,16 @@ public class FriendsFragment extends Fragment {
                 mClusterManager.setRenderer(mClusterManagerRenderer);
             }
 
-            //TODO Add filter for friends only
-            for(User friend: users){
+            List<User> friends = new ArrayList<>();
+            if(userKey != null) {
+                friends
+            }
+            else {
+                //add all friends
+                friends = new GetArrayListFromStream<User>().get(users.stream().filter(x -> true));
+            }
+
+            for(User friend: friends){
 
 //                Log.d("CLUSTER_MARKER", "addMapMarkers: location: " + userLocation.getGeo_point().toString());
                 try{
@@ -198,7 +266,7 @@ public class FriendsFragment extends Fragment {
 
 //            cameraZoomToLocation(currentUser.location.getLocation());
         }
-
+        return null;
     }
 
     /**
@@ -242,5 +310,9 @@ public class FriendsFragment extends Fragment {
 
             }
         });
+    }
+
+    private void changeUserLocationOnMap(String userKey) {
+
     }
 }

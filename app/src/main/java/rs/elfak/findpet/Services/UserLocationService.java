@@ -240,6 +240,11 @@ public class UserLocationService extends Service implements UsersListEventListen
     }
 
     @Override
+    public void OnUserLocationChanged(String userKey) {
+
+    }
+
+    @Override
     public void onLocationChanged(@NonNull Location location) {
         Log.i("locationChanged", "Callback entered " + location.getLatitude() + " " + location.getLongitude());
         this.location = location;

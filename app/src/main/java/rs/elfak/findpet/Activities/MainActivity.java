@@ -139,6 +139,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public void OnUserLocationChanged(String userKey) {
+
+    }
+
+    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         Bundle bundle = new Bundle();
         switch (item.getItemId()) {
@@ -286,6 +291,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void CurrentUserLoaded() {
             isLoaded = true;
+        }
+
+        @Override
+        public void OnUserLocationChanged(String userKey) {
+
         }
     }
 

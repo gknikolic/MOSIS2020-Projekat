@@ -17,14 +17,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/friendsFragment_markersSpinner"
-        android:text="zoom my marker" />
+        android:text="zoom my marker"
+        android:layout_margin="@dimen/fab_margin"/>
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/friendsFragment_showOtherUsers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/friendsFragment_markersSpinner"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_toRightOf="@+id/friendsFragment_btnZoomMyMarker"
+        android:text="@string/show_other_users" />
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/friendsFragment_map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="500dp"
         android:layout_alignParentBottom="true"
         android:theme="@style/Theme.FindPet"
         tools:context=".Fragments.FriendsFragment" />

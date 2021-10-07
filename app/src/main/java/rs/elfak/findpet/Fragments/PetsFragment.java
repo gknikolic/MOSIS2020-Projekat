@@ -366,6 +366,11 @@ public class PetsFragment extends Fragment {
         public void CurrentUserLoaded() {
             isLoaded = true;
         }
+
+        @Override
+        public void OnUserLocationChanged(String userKey) {
+
+        }
     }
 
 }

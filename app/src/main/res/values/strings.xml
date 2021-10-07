@@ -42,5 +42,6 @@
     <string name="spinnerPlaceholder">all</string>
     <string name="preparing_map">Preparing map, please wait...</string>
     <string name="filtering">Filtering...</string>
+    <string name="show_other_users">Show other users</string>
 
 </resources>
