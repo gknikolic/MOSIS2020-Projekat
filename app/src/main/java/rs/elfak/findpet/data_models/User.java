@@ -8,6 +8,7 @@ import android.os.Parcelable;
 import com.google.firebase.database.Exclude;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public class User implements Serializable {
     public String username;
@@ -18,6 +19,8 @@ public class User implements Serializable {
     public boolean locationEnabled;
     public boolean profilePictureUploaded;
     public int totalPoints;
+    public HashMap<String, Boolean> friends;
+    public HashMap<String, Boolean> friendRequests;
     @Exclude
     public String key;
     @Exclude
@@ -33,6 +36,8 @@ public class User implements Serializable {
         this.location = new Location();
         this.totalPoints = 0;
         this.locationEnabled = false;
+        this.friendRequests = new HashMap<>();
+        this.friends = new HashMap<>();
     }
 
     @Exclude

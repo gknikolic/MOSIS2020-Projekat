@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.data_models.User;
+
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,14 +44,14 @@ public class UsersData {
     private static final String FIREBASE_CHILD = "users";
     private ArrayList<UsersListEventListener> updateListeners = new ArrayList<>();
     private static final String FIRESTORE_CHILD = "profilePictures";
+    private String currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+    public static final String FRIEND_REQUESTS = "friendRequests";
+    public static final String FRIENDS = "friends";
 
     public void setCurrentUserUID(String currentUserUID) {
         this.currentUserUID = currentUserUID;
     }
-
-    private String currentUserUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-    private FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-    private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
     private final ChildEventListener childEventListener = new ChildEventListener() {
         private static final long MAX_SIZE = 1028 * 1028 * 20;
@@ -311,6 +313,85 @@ public class UsersData {
         for (UsersListEventListener listener: updateListeners.toArray(new UsersListEventListener[0])) {
             listener.CurrentUserLoaded();
         }
+    }
+
+    public void sendFriendRequest(String receiverUserKey, Context context) {
+        User currentLoggedUser = getCurrentLoggedUser();
+        if (currentLoggedUser.friends.containsKey(receiverUserKey))
+            return;
+        dbReference.child(FIREBASE_CHILD)
+                .child(receiverUserKey)
+                .child(FRIEND_REQUESTS)
+                .child(currentUserUID)
+                .setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(context, "Friend request sent successfully.", Toast.LENGTH_LONG).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context, "Error occurred sending friend request. Try again!", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+    }
+
+    public void acceptFriendRequest(String newFriendKey, Context context){
+        dbReference.child(FIREBASE_CHILD)
+                .child(currentUserUID)
+                .child(FRIENDS)
+                .child(newFriendKey)
+                .setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(context, "Friend request accepted. You have a new friend!", Toast.LENGTH_LONG).show();
+                int myIndex = usersKeyIndexMapping.get(currentUserUID);
+                users.get(myIndex).friends.put(newFriendKey, true);
+                addMeToNewFriendFriends(newFriendKey, context);
+
+                removeFriendRequest(newFriendKey, context);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context, "Error occurred while accepting friend request. Try again!", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void addMeToNewFriendFriends(String newFriendKey, Context context) {
+        dbReference.child(FIREBASE_CHILD)
+                .child(newFriendKey)
+                .child(FRIENDS)
+                .child(currentUserUID)
+                .setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                int newFriendIndex = usersKeyIndexMapping.get(newFriendKey);
+                users.get(newFriendIndex).friends.put(currentUserUID, true);
+                Log.i("UsersData", "Current user added to friend list of another user");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i("UsersData", "Current user failed adding to friend list of another user");
+            }
+        });
+    }
+
+    public void removeFriendRequest(String newFriendKey, Context context) {
+        dbReference.child(FIREBASE_CHILD)
+                .child(currentUserUID)
+                .child(FRIEND_REQUESTS)
+                .child(newFriendKey)
+                .removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(context, "User removed from friend requests.", Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     public User getCurrentLoggedUser(){

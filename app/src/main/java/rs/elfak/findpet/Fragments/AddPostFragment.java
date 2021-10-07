@@ -98,6 +98,11 @@ public class AddPostFragment extends Fragment {
                     newPost.timestamp = getCurrentDate();
                     newPost.userKey = currentUser.key;
                     PostsData.getInstance().addNewPost(newPost, getContext());
+                    getActivity()
+                            .getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, new DashboardFragment())
+                            .commit();
                 }
             }
         });

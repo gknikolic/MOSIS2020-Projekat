@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        UsersData.getInstance().addUpdateListener(this);
 
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
         if(!sharedPreferences.getBoolean("isLogged", false)){
@@ -78,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             finish();
         }
 
+        UsersData.getInstance().addUpdateListener(this);
         InitSideBar(savedInstanceState);
         UsersData.getInstance().setCurrentUserUID(FirebaseAuth.getInstance().getCurrentUser().getUid());
 

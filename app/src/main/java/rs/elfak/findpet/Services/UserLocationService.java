@@ -27,15 +27,17 @@ import rs.elfak.findpet.Activities.MainActivity;
 import rs.elfak.findpet.Enums.FragmentName;
 import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.R;
+import rs.elfak.findpet.Repositories.PostsData;
 import rs.elfak.findpet.Repositories.UsersData;
+import rs.elfak.findpet.data_models.Post;
 import rs.elfak.findpet.data_models.User;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 
 public class UserLocationService extends Service implements UsersListEventListener, LocationListener{
 
-    private static final long MSECONDS = 10000;
-    private static final float DISTANCE = 100;
-    private static final float OBJECT_NEAR_DISTANCE = 200;
+    private static final long MSECONDS = 5000;
+    private static final float DISTANCE = 50;
+    private static final float OBJECT_NEAR_DISTANCE = 100;
     private static final String TAG = "UserLocationService";
     private LocationListener locationListener;
     private LocationManager locationManager;
@@ -170,7 +172,8 @@ public class UserLocationService extends Service implements UsersListEventListen
     }
 
     private void sendUserNearNotification(String username){
-        Intent notificationIntent = new Intent(this, MainActivity.class); //ovde treba mapa da se otvori
+        // todo: open users map
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.putExtra(Constants.FRAGMENT_ENUM_KEY, FragmentName.Friends);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
@@ -191,12 +194,32 @@ public class UserLocationService extends Service implements UsersListEventListen
     }
 
     public void checkForNearPets(Location location){
-        //todo: make this method
-        //same as checkForNearUser just for pets
+        currentUser = usersDataReference.getCurrentLoggedUser();
+        if(currentUser != null){
+            Log.i(TAG, "Current user not null");
+            for(Post post: PostsData.getInstance().getPosts()){
+                if(!post.userKey.equals(currentUser.key)){
+                    float[] distance = new float[1];
+                    Location.distanceBetween(
+                            location.getLatitude(),
+                            location.getLongitude(),
+                            post.location.latitude,
+                            post.location.longitude,
+                            distance
+                    );
+                    Log.v(TAG, "Distance: " + Float.toString(distance[0]));
+                    if(distance[0] < OBJECT_NEAR_DISTANCE && currentUser.locationEnabled){
+                        sendPetNearNotification(post);
+                    }
+
+                }
+            }
+        }
     }
 
-    private void sendPetNearNotification(){
-        Intent notificationIntent = new Intent(this, MainActivity.class); //ovde treba mapa da se otvori
+    private void sendPetNearNotification(Post post){
+        // todo: open pets map
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 0,
@@ -205,8 +228,8 @@ public class UserLocationService extends Service implements UsersListEventListen
         );
         Notification notification =
                 new NotificationCompat.Builder(this, App.PET_NEAR_CHANNEL_ID)
-                        .setContentTitle("User Near!")
-                        .setContentText("User is near you")
+                        .setContentTitle("Pet Near!")
+                        .setContentText(post.caseType.getValue() + " pet is near you")
                         .setSmallIcon(R.drawable.ic_pets_24)
                         .setContentIntent(pendingIntent)
                         .build();
@@ -251,7 +274,7 @@ public class UserLocationService extends Service implements UsersListEventListen
         UsersData.getInstance().updateLocation(location);
         //TODO Uncomment this
         checkForNearUser(location);
-//        checkForNearPets(location);
+        checkForNearPets(location);
     }
 
     @Override
@@ -281,7 +304,7 @@ public class UserLocationService extends Service implements UsersListEventListen
     public void onDestroy() {
         super.onDestroy();
         if(locationManager != null){
-            locationManager.removeUpdates(locationListener);
+            locationManager.removeUpdates(this);
         }
     }
 
