@@ -1,6 +1,9 @@
 package rs.elfak.findpet.Adapters;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,19 +13,28 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import rs.elfak.findpet.Fragments.PetsFragment;
+import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.Helpers.Helpers;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
+import rs.elfak.findpet.data_models.PetFilterModel;
 import rs.elfak.findpet.data_models.Post;
 import rs.elfak.findpet.data_models.User;
 
 public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapter.ViewHolder> {
 
     private ArrayList<Post> posts = new ArrayList<Post>();
+
+    //for relationship
+    private HashMap<String, User> userOfPost = new HashMap<>();
 
     public PostsRecViewAdapter() {
 
@@ -38,32 +50,59 @@ public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        //HACK: Avoid this error
+        //Do not treat position as fixed; only use immediately and call `holder.getAdapterPosition()` to look it up later
+        int i = position;
+        String postKey = posts.get(i).key;
+        String userKey = posts.get(i).userKey;
+
+        //relationship
+        userOfPost.put(posts.get(i).key, UsersData.getInstance().getUser(userKey));
+
         //header
-        Bitmap userProfileImage = getUserProfileImage(position);
+        Bitmap userProfileImage = getUserProfileImage(i);
         holder.userImage.setImageBitmap(userProfileImage);
-        holder.userName.setText(getUserUsername(position));
-        holder.timestamp.setText(Helpers.formatDate(posts.get(position).timestamp));
+        holder.userName.setText(userOfPost.get(postKey).username);
+        holder.timestamp.setText(Helpers.formatDate(posts.get(i).timestamp));
 
         //post details
-        holder.postText.setText(posts.get(position).text);
-        holder.postImage.setImageBitmap(posts.get(position).image);
+        holder.postText.setText(posts.get(i).text);
+        holder.postImage.setImageBitmap(posts.get(i).image);
 
         //buttons and clickable elements
         holder.btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + userOfPost.get(postKey).phoneNumber));
+                view.getContext().startActivity(callIntent);
             }
         });
         holder.btnMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                sendIntent.setData(Uri.parse("sms:" + userOfPost.get(postKey).phoneNumber));
+                sendIntent.putExtra("sms_body", "");
+                view.getContext().startActivity(sendIntent);
             }
         });
-        holder.btnShowOnMap.setOnClickListener(new View.OnClickListener() {
+        holder.btnShowOnMap.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                PetFilterModel filterModel = new PetFilterModel();
+                filterModel.name = posts.get(i).pet.name;
+                filterModel.petType = posts.get(i).pet.type;
+                filterModel.caseType = posts.get(i).caseType;
+                filterModel.postKey = posts.get(i).key;
+
+//                Bundle bundle = new Bundle();
+//                bundle.putSerializable(Constants.USER_KEY, userOfPost.get(posts.get(i).userKey));
+////                bundle.putSerializable(Constants.FREINDS_KEY, users);
+//                PetsFragment petsFragment = new PetsFragment(new PetFilterModel());
+//                petsFragment.setArguments(bundle);
+//                AppCompatActivity activity = (AppCompatActivity) view.getContext().gets;
+//                ((FragmentActivity)view.getContext()).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
 
             }
         });
@@ -76,7 +115,17 @@ public class PostsRecViewAdapter extends RecyclerView.Adapter<PostsRecViewAdapte
 
     }
 
-    private String getUserUsername(int position) {
+
+
+//    private String getUserUsername(int position) {
+//        String userKey = posts.get(position).userKey;
+//        User user = UsersData.getInstance().getUser(userKey);
+//        if(user != null)
+//            return user.username;
+//        return null;
+//    }
+
+    private String getPhoneNumber(int position) {
         String userKey = posts.get(position).userKey;
         User user = UsersData.getInstance().getUser(userKey);
         if(user != null)

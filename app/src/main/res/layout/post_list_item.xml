@@ -72,6 +72,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/post_header"
+        android:layout_margin="@dimen/fab_margin"
+        android:justificationMode="inter_word"
         android:text="Izgubljen je pas star oko 2 godine, odaziva se na ime Džeki." />
 
     <androidx.constraintlayout.widget.ConstraintLayout

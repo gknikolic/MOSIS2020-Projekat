@@ -7,6 +7,7 @@ public class PetFilterModel {
     public String name;
     public PetType petType;
     public CaseType caseType;
+    public String postKey; //for showing only one pet (exp. After ViewOnMap clicked on Dashboard Fragment)
 
     public PetFilterModel() {
     }
@@ -15,5 +16,12 @@ public class PetFilterModel {
         this.name = name;
         this.petType = petType;
         this.caseType = caseType;
+    }
+
+    public PetFilterModel(String name, PetType petType, CaseType caseType, String postKey) {
+        this.name = name;
+        this.petType = petType;
+        this.caseType = caseType;
+        this.postKey = postKey;
     }
 }

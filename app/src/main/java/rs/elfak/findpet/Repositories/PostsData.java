@@ -42,7 +42,7 @@ public class PostsData {
     private static final String FIREBASE_CHILD = "posts";
     public static final String FIRESTORE_CHILD = "postsImages";
     private static final long MAX_SIZE = 1024 * 1024 * 4;
-    private PostsListEventListener updateListener;
+    private ArrayList<PostsListEventListener> updateListeners = new ArrayList<>();;
     private final StorageReference storageReference;
 
     private final ChildEventListener childEventListener = new ChildEventListener() {
@@ -83,9 +83,7 @@ public class PostsData {
                 posts.remove(index);
                 recreateKeyIndexMapping();
             }
-            if (updateListener != null) {
-                updateListener.OnPostsListUpdated();
-            }
+            notifyPostsListUpdated();
         }
 
         @Override
@@ -102,17 +100,13 @@ public class PostsData {
     private void addPost(Post post){
         posts.add(post);
         postsKeyIndexMapping.put(post.key, posts.size() - 1);
-        if (updateListener != null) {
-            updateListener.OnPostsListUpdated();
-        }
+        notifyPostsListUpdated();
     }
 
     private void updateLocalPost(Post post){
         int index = postsKeyIndexMapping.get(post.key);
         posts.set(index, post);
-        if (updateListener != null) {
-            updateListener.OnPostsListUpdated();
-        }
+        notifyPostsListUpdated();
     }
 
     private void fetchPostImage(Post post, boolean updateExisting){
@@ -153,10 +147,8 @@ public class PostsData {
     private final ValueEventListener parentEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
-            if (updateListener != null)
-                updateListener.OnPostsListUpdated();
+            notifyPostsListUpdated();
         }
-
         @Override
         public void onCancelled(@NonNull DatabaseError error) {
 
@@ -242,8 +234,14 @@ public class PostsData {
         dbReference.child(FIREBASE_CHILD).child(key).setValue(postUpdated);
     }
 
-    public void setUpdateListener(PostsListEventListener listener) {
-        this.updateListener = listener;
+    public void addUpdateListener(PostsListEventListener listener) {
+        updateListeners.add(listener);
+    }
+
+    private void notifyPostsListUpdated() {
+        for (PostsListEventListener listener: updateListeners) {
+            listener.OnPostsListUpdated();
+        }
     }
 
 }

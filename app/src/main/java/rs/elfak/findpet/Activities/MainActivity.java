@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
 
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView locationServiceStatus;
     private ImageView profileImage;
     private FragmentName startupFragment = FragmentName.Dashboard;
+    protected FragmentManager fragmentManager = getSupportFragmentManager();
     NavigationView navigationView;
     ProgressDialog progressDialog;
 
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_pets:
                 bundle.putSerializable(Constants.USER_KEY, currentUser);
-                bundle.putSerializable(Constants.FREINDS_KEY, users);
+//                bundle.putSerializable(Constants.FREINDS_KEY, users);
                 PetsFragment petsFragment = new PetsFragment(new PetFilterModel());
                 petsFragment.setArguments(bundle);
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();

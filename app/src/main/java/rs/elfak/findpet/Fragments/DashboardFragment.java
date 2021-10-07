@@ -50,6 +50,8 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        PostsData.getInstance().addUpdateListener(this);
+
         fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,7 +61,7 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
                         .replace(R.id.fragment_container, addPostFragment).commit();
             }
         });
-        PostsData.getInstance().setUpdateListener(this);
+
         postsRecView = getView().findViewById(R.id.posts_rec_view);
         PostsRecViewAdapter adapter = new PostsRecViewAdapter();
         adapter.setPosts(PostsData.getInstance().getPosts());

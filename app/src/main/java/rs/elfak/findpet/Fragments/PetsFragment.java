@@ -38,6 +38,7 @@ import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
 import rs.elfak.findpet.data_models.ClusterMarker;
+import rs.elfak.findpet.data_models.Pet;
 import rs.elfak.findpet.data_models.PetFilterModel;
 import rs.elfak.findpet.data_models.User;
 
@@ -46,6 +47,7 @@ public class PetsFragment extends Fragment {
     //params from main activity
     private User currentUser;
     private ArrayList<User> users;
+    private ArrayList<Pet> pets;
     private PetFilterModel filterModel;
 
     //for maps
@@ -62,7 +64,7 @@ public class PetsFragment extends Fragment {
     private Spinner petTypeSpinner;
     private EditText tbxName;
     private Button btnApplyFilters;
-    private  Button btnClearFilters;
+    private Button btnClearFilters;
 
     public PetsFragment(PetFilterModel filterModel) {
         this.filterModel = filterModel;
@@ -76,7 +78,7 @@ public class PetsFragment extends Fragment {
         currentUser = (User) getArguments().getSerializable(Constants.USER_KEY);
         users = (ArrayList<User>) getArguments().getSerializable(Constants.FREINDS_KEY);
         final View rootView = inflater.inflate(R.layout.fragment_pets, container, false);
-        return  rootView;
+        return rootView;
     }
 
     @Override
@@ -101,8 +103,8 @@ public class PetsFragment extends Fragment {
         caseTypeSpinner = getView().findViewById(R.id.petsFragment_caseTypeSpinner);
         String[] caseTypesWithPlaceHolder = new String[CaseType.values().length + 1];
         caseTypesWithPlaceHolder[0] = getView().getResources().getString(R.string.spinnerPlaceholder);
-        for(int i = 1; i < caseTypesWithPlaceHolder.length; i++) {
-            caseTypesWithPlaceHolder[i] = CaseType.values()[i-1].toString();
+        for (int i = 1; i < caseTypesWithPlaceHolder.length; i++) {
+            caseTypesWithPlaceHolder[i] = CaseType.values()[i - 1].toString();
         }
         caseTypeSpinner.setAdapter(new SpinnerWithPlaceholderAdapter(getContext(), R.layout.spinner_item, caseTypesWithPlaceHolder));
         caseTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -111,14 +113,13 @@ public class PetsFragment extends Fragment {
                 String selectedItemText = parent.getItemAtPosition(position).toString();
                 // If user change the default selection
                 // First item is disable and it is used for hint
-                if(position > 0){
+                if (position > 0) {
                     // Notify the selected item text
                     Toast.makeText
                             (getContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                             .show();
                     filterModel.caseType = CaseType.valueOf(selectedItemText);
-                }
-                else {
+                } else {
                     filterModel.caseType = null;
                 }
             }
@@ -134,8 +135,8 @@ public class PetsFragment extends Fragment {
         petTypeSpinner = (Spinner) getView().findViewById(R.id.petsFragment_petTypeSpinner);
         String[] petTypesWithPlaceHolder = new String[PetType.values().length + 1];
         petTypesWithPlaceHolder[0] = getView().getResources().getString(R.string.spinnerPlaceholder);
-        for(int i = 1; i < petTypesWithPlaceHolder.length; i++) {
-            petTypesWithPlaceHolder[i] = PetType.values()[i-1].toString();
+        for (int i = 1; i < petTypesWithPlaceHolder.length; i++) {
+            petTypesWithPlaceHolder[i] = PetType.values()[i - 1].toString();
         }
         petTypeSpinner.setAdapter(new SpinnerWithPlaceholderAdapter(getContext(), R.layout.spinner_item, petTypesWithPlaceHolder));
         petTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -144,14 +145,13 @@ public class PetsFragment extends Fragment {
                 String selectedItemText = parent.getItemAtPosition(position).toString();
                 // If user change the default selection
                 // First item is disable and it is used for hint
-                if(position > 0){
+                if (position > 0) {
                     // Notify the selected item text
                     Toast.makeText
                             (getContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
                             .show();
                     filterModel.petType = PetType.valueOf(selectedItemText);
-                }
-                else {
+                } else {
                     filterModel.petType = null;
                 }
             }
@@ -213,23 +213,22 @@ public class PetsFragment extends Fragment {
         }
     };
 
-    private void cameraZoomToLocation(LatLng location)
-    {
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(location,15));
+    private void cameraZoomToLocation(LatLng location) {
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
         // Zoom in, animating the camera.
         map.animateCamera(CameraUpdateFactory.zoomIn());
         // Zoom out to zoom level 10, animating with a duration of 2 seconds.
         map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
     }
 
-    private void addMapMarkers(){
+    private void addMapMarkers() {
 
-        if(map != null){
+        if (map != null) {
 
-            if(mClusterManager == null){
+            if (mClusterManager == null) {
                 mClusterManager = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
             }
-            if(mClusterManagerRenderer == null){
+            if (mClusterManagerRenderer == null) {
                 mClusterManagerRenderer = new MyClusterManagerRenderer(
                         getActivity(),
                         map,
@@ -239,27 +238,27 @@ public class PetsFragment extends Fragment {
             }
 
             //TODO Add filter for friends only
-            for(User friend: users){
+            for (User friend : users) {
 
 //                Log.d("CLUSTER_MARKER", "addMapMarkers: location: " + userLocation.getGeo_point().toString());
-                try{
+                try {
                     String snippet = "";
-                    if(friend.getUser_id().equals(currentUser.getUser_id())) {
+                    if (friend.getUser_id().equals(currentUser.getUser_id())) {
                         snippet = "This is you";
-                    }
-                    else{
+                    } else {
                         snippet = "Determine route to " + friend.username + "?";
                     }
 
-                    Bitmap avatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar);; // set the default avatar
-                    try{
-                        if(friend.profilePicture != null) {
+                    Bitmap avatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar);
+                    ; // set the default avatar
+                    try {
+                        if (friend.profilePicture != null) {
                             avatar = friend.profilePicture;
                         }
-                    }catch (NumberFormatException e){
+                    } catch (NumberFormatException e) {
                         Log.d("MAPS", "addMapMarkers: no avatar for " + friend.username + ", setting default.");
                     }
-                    if(friend.location != null) {
+                    if (friend.location != null) {
                         ClusterMarker newClusterMarker = new ClusterMarker(
                                 friend.location.getLocation(),
                                 friend.username,
@@ -271,8 +270,8 @@ public class PetsFragment extends Fragment {
                         mClusterMarkers.add(newClusterMarker);
                     }
 
-                }catch (NullPointerException e){
-                    Log.e("MAPS", "addMapMarkers: NullPointerException: " + e.getMessage() );
+                } catch (NullPointerException e) {
+                    Log.e("MAPS", "addMapMarkers: NullPointerException: " + e.getMessage());
                 }
 
             }
