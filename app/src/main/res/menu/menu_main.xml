@@ -5,9 +5,12 @@
         <item android:id="@+id/nav_dashboard"
             android:title="@string/dashboard"
             android:icon="@drawable/ic_baseline_dashboard_24"/>
-        <item android:id="@+id/nav_map"
-            android:title="@string/map"
-            android:icon="@drawable/ic_baseline_map_24"/>
+        <item android:id="@+id/nav_friends"
+            android:title="@string/friends"
+            android:icon="@drawable/ic_person_pin_24"/>
+        <item android:id="@+id/nav_pets"
+            android:title="@string/pets"
+            android:icon="@drawable/ic_pets_24"/>
         <item android:id="@+id/nav_message"
             android:title="@string/message"
             android:icon="@drawable/ic_baseline_message_24"/>

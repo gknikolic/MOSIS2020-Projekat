@@ -171,7 +171,7 @@ public class UserLocationService extends Service implements UsersListEventListen
 
     private void sendUserNearNotification(String username){
         Intent notificationIntent = new Intent(this, MainActivity.class); //ovde treba mapa da se otvori
-        notificationIntent.putExtra(Constants.FRAGMENT_ENUM_KEY, FragmentName.Maps);
+        notificationIntent.putExtra(Constants.FRAGMENT_ENUM_KEY, FragmentName.Friends);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 0,

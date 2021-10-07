@@ -5,8 +5,12 @@
       <map>
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/round_button.xml" value="0.22135416666666666" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/drawable/round_input.xml" value="0.3828125" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/activity_login.xml" value="0.2390625" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/activity_main.xml" value="0.2390625" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/activity_register.xml" value="0.21875" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_friends.xml" value="0.21875" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_maps.xml" value="0.2390625" />
+        <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_pets.xml" value="0.2390625" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/fragment_user.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/nav_header.xml" value="0.25" />
         <entry key="..\:/Users/NemanjaNikolic/Documents/MOSIS2020-Projekat/app/src/main/res/layout/post_list_item.xml" value="0.2390625" />

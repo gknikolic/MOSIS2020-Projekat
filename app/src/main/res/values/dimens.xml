@@ -9,4 +9,5 @@
     <dimen name="fragmentPadding">16dp</dimen>
     <dimen name="custom_marker_image">60dp</dimen>
     <dimen name="custom_marker_padding">1dp</dimen>
+    <dimen name="input_margin">10dp</dimen>
 </resources>

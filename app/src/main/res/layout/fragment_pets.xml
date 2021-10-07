@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="@dimen/fragmentPadding">
+
+    <EditText
+        android:id="@+id/petsFragment_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_input"
+        android:hint="@string/pet_name" />
+
+    <Spinner
+        android:id="@+id/petsFragment_caseTypeSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/input_margin"
+        android:layout_below="@+id/petsFragment_name"
+        android:layout_marginBottom="@dimen/fab_margin" />
+
+    <Spinner
+        android:id="@+id/petsFragment_petTypeSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/input_margin"
+        android:layout_below="@+id/petsFragment_caseTypeSpinner"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_below="@id/petsFragment_petTypeSpinner">
+        <Button
+            android:id="@+id/petsFragment_btnApplyFilters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_button"
+            android:textColor="@color/design_default_color_on_primary"
+            android:text="@string/apply_filters"
+            android:layout_marginEnd="@dimen/fab_margin"/>
+        <Button
+            android:id="@+id/petsFragment_btnClearFilters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_button"
+            android:textColor="@color/design_default_color_on_primary"
+            android:text="@string/clear_filters" />
+    </LinearLayout>
+
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/petsFragment_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_alignParentBottom="true"
+        android:theme="@style/Theme.FindPet"
+        tools:context=".Fragments.PetsFragment" />
+</RelativeLayout>

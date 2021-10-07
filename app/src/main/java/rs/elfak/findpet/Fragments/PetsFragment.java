@@ -1,9 +1,5 @@
 package rs.elfak.findpet.Fragments;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,8 +11,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,30 +30,43 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import rs.elfak.findpet.Activities.MainActivity;
+import rs.elfak.findpet.Adapters.SpinnerWithPlaceholderAdapter;
 import rs.elfak.findpet.Adapters.ClusterSpinnerAdapter;
 import rs.elfak.findpet.Enums.CaseType;
+import rs.elfak.findpet.Enums.PetType;
 import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.R;
-import rs.elfak.findpet.data_models.ClusterMarker;
-import rs.elfak.findpet.data_models.User;
 import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
+import rs.elfak.findpet.data_models.ClusterMarker;
+import rs.elfak.findpet.data_models.PetFilterModel;
+import rs.elfak.findpet.data_models.User;
 
-public class MapsFragment extends Fragment {
+public class PetsFragment extends Fragment {
 
-    private GoogleMap map;
-    private Spinner caseTypeSpinner;
-    private Spinner markersSpinner;
-    private ClusterSpinnerAdapter clusterSpinnerAdapter;
+    //params from main activity
     private User currentUser;
     private ArrayList<User> users;
-    private Button btnMyMarker;
-    private ProgressDialog progressDialog;
+    private PetFilterModel filterModel;
 
+    //for maps
     private LatLngBounds mMapBoundary;
     private ClusterManager<ClusterMarker> mClusterManager;
     private MyClusterManagerRenderer mClusterManagerRenderer;
+    private ClusterSpinnerAdapter clusterSpinnerAdapter;
     private List<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
+
+    //widgets
+    private ProgressDialog progressDialog;
+    private GoogleMap map;
+    private Spinner caseTypeSpinner;
+    private Spinner petTypeSpinner;
+    private EditText tbxName;
+    private Button btnApplyFilters;
+    private  Button btnClearFilters;
+
+    public PetsFragment(PetFilterModel filterModel) {
+        this.filterModel = filterModel;
+    }
 
 
     @Nullable
@@ -61,7 +75,7 @@ public class MapsFragment extends Fragment {
         //from main activity
         currentUser = (User) getArguments().getSerializable(Constants.USER_KEY);
         users = (ArrayList<User>) getArguments().getSerializable(Constants.FREINDS_KEY);
-        final View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_pets, container, false);
         return  rootView;
     }
 
@@ -69,46 +83,103 @@ public class MapsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.friendsFragment_map);
         if (mapFragment != null) {
             // setup a progress dialog
             progressDialog = new ProgressDialog(getContext());
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.setTitle("please wait..");
+            progressDialog.setTitle(R.string.progressDialogTitle);
 
             progressDialog.show();
             mapFragment.getMapAsync(callback);
         }
 
-        //TODO Investigate why onClick and onSelectItem listeners don't work in Google map activities
+        tbxName = (EditText) getView().findViewById((R.id.petsFragment_name));
 
-        caseTypeSpinner = (Spinner) getView().findViewById(R.id.mapsFragment_caseTypeSpinner);
-        caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), R.layout.spinner_item, CaseType.values()));
+        //TODO Consider to enable first option
+        caseTypeSpinner = getView().findViewById(R.id.petsFragment_caseTypeSpinner);
+        String[] caseTypesWithPlaceHolder = new String[CaseType.values().length + 1];
+        caseTypesWithPlaceHolder[0] = getView().getResources().getString(R.string.spinnerPlaceholder);
+        for(int i = 1; i < caseTypesWithPlaceHolder.length; i++) {
+            caseTypesWithPlaceHolder[i] = CaseType.values()[i-1].toString();
+        }
+        caseTypeSpinner.setAdapter(new SpinnerWithPlaceholderAdapter(getContext(), R.layout.spinner_item, caseTypesWithPlaceHolder));
         caseTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getContext(), "clicked: " + CaseType.values()[i].toString(), Toast.LENGTH_LONG).show();
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = parent.getItemAtPosition(position).toString();
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                if(position > 0){
+                    // Notify the selected item text
+                    Toast.makeText
+                            (getContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                            .show();
+                    filterModel.caseType = CaseType.valueOf(selectedItemText);
+                }
+                else {
+                    filterModel.caseType = null;
+                }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+            public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
 
-        markersSpinner = (Spinner) getView().findViewById(R.id.mapsFragment_markersSpinner); //adapter for this spinner is set after markers added in onMapReady function
 
-        btnMyMarker = view.findViewById(R.id.mapsFragment_btnZoomMyMarker);
-        btnMyMarker.setOnClickListener(new View.OnClickListener() {
+        //TODO Consider to enable first option
+        petTypeSpinner = (Spinner) getView().findViewById(R.id.petsFragment_petTypeSpinner);
+        String[] petTypesWithPlaceHolder = new String[PetType.values().length + 1];
+        petTypesWithPlaceHolder[0] = getView().getResources().getString(R.string.spinnerPlaceholder);
+        for(int i = 1; i < petTypesWithPlaceHolder.length; i++) {
+            petTypesWithPlaceHolder[i] = PetType.values()[i-1].toString();
+        }
+        petTypeSpinner.setAdapter(new SpinnerWithPlaceholderAdapter(getContext(), R.layout.spinner_item, petTypesWithPlaceHolder));
+        petTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItemText = parent.getItemAtPosition(position).toString();
+                // If user change the default selection
+                // First item is disable and it is used for hint
+                if(position > 0){
+                    // Notify the selected item text
+                    Toast.makeText
+                            (getContext(), "Selected : " + selectedItemText, Toast.LENGTH_SHORT)
+                            .show();
+                    filterModel.petType = PetType.valueOf(selectedItemText);
+                }
+                else {
+                    filterModel.petType = null;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        btnApplyFilters = (Button) getView().findViewById(R.id.petsFragment_btnApplyFilters);
+        btnApplyFilters.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i("MAPS", "btn clicked");
-                Toast.makeText(getContext(), "Clicked", Toast.LENGTH_LONG).show();
-                cameraZoomToLocation(currentUser.location.getLocation());
+
             }
         });
 
+        btnClearFilters = (Button) getView().findViewById(R.id.petsFragment_btnClearFilters);
+        btnClearFilters.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                caseTypeSpinner.setSelection(0);
+                caseTypeSpinner.setSelection(0);
+                tbxName.setText("");
+                Toast.makeText(getContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -127,15 +198,15 @@ public class MapsFragment extends Fragment {
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
 
+            //adding basic marker
 //            LatLng myLocation = currentUser.location.getLocation();
 //            map.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
 //            map.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
 //            cameraZoomToLocation(myLocation);
 
-            //TODO create marker with picture, only for friends
-            addMapMarkers();
-
-            initMarkersSpinner();
+            //TODO create marker with picture for pets or use basic markers?
+//            addMapMarkers();
+//            initMarkersSpinner();
             progressDialog.dismiss();
 
             Log.i("MAPS", "On map create method");
@@ -234,26 +305,4 @@ public class MapsFragment extends Fragment {
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary, 0));
     }
 
-    private void initMarkersSpinner() {
-        clusterSpinnerAdapter = new ClusterSpinnerAdapter(getContext(),
-                0,
-                mClusterMarkers);
-        markersSpinner.setAdapter(clusterSpinnerAdapter); // Set the custom adapter to the spinner
-
-        // You can create an anonymous listener to handle the event when is selected an spinner item
-//        markersSpinner.setAdapter(new ArrayAdapter<ClusterMarker>(getContext(), R.layout.spinner_item, mClusterMarkers));
-        markersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                ClusterMarker marker = clusterSpinnerAdapter.getItem(i);
-                cameraZoomToLocation(marker.position);
-                Log.i("MOVE MARKER", "selected user: " + marker.user);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-    }
 }

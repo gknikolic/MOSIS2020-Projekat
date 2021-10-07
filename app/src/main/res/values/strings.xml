@@ -34,5 +34,11 @@
     <string name="add_short_description">Add short description</string>
     <string name="pet_name">Pet name</string>
     <string name="add_new_post">Add New Post</string>
+    <string name="apply_filters">APPLY FILTERS</string>
+    <string name="clear_filters">CLEAR FILTERS</string>
+    <string name="friends">Friends</string>
+    <string name="pets">Pets</string>
+    <string name="progressDialogTitle">please wait ...</string>
+    <string name="spinnerPlaceholder">all</string>
 
 </resources>

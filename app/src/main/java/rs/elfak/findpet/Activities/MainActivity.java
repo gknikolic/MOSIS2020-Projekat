@@ -4,19 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,14 +29,16 @@ import java.util.ArrayList;
 
 import rs.elfak.findpet.Enums.FragmentName;
 import rs.elfak.findpet.Fragments.DashboardFragment;
-import rs.elfak.findpet.Fragments.MapsFragment;
+import rs.elfak.findpet.Fragments.FriendsFragment;
 import rs.elfak.findpet.Fragments.MessagesFragment;
+import rs.elfak.findpet.Fragments.PetsFragment;
 import rs.elfak.findpet.Fragments.UserFragment;
 import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.Services.UserLocationService;
+import rs.elfak.findpet.data_models.PetFilterModel;
 import rs.elfak.findpet.data_models.User;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UsersListEventListener {
@@ -148,12 +146,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_message:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagesFragment()).commit();
                 break;
-            case R.id.nav_map:
+            case R.id.nav_friends:
                 bundle.putSerializable(Constants.USER_KEY, currentUser);
                 bundle.putSerializable(Constants.FREINDS_KEY, users);
-                MapsFragment mapsFragment = new MapsFragment();
-                mapsFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, mapsFragment).commit();
+                FriendsFragment friendsFragment = new FriendsFragment();
+                friendsFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, friendsFragment).commit();
+                break;
+            case R.id.nav_pets:
+                bundle.putSerializable(Constants.USER_KEY, currentUser);
+                bundle.putSerializable(Constants.FREINDS_KEY, users);
+                PetsFragment petsFragment = new PetsFragment(new PetFilterModel());
+                petsFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
                 break;
             case R.id.nav_user:
                 if(currentUser != null) {
