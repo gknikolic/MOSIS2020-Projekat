@@ -16,7 +16,7 @@ public class Post implements Serializable {
     public String text;
     public boolean IsFinished;
     public Location location;
-    public User user;
+    public String userKey;
     public Pet pet;
     public CaseType caseType;
 
