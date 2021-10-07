@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_pets:
                 bundle.putSerializable(Constants.USER_KEY, currentUser);
 //                bundle.putSerializable(Constants.FREINDS_KEY, users);
-                PetsFragment petsFragment = new PetsFragment(new PetFilterModel());
+                PetsFragment petsFragment = new PetsFragment(new PetFilterModel()); //empty model with nulls (Show all)
                 petsFragment.setArguments(bundle);
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
                 break;

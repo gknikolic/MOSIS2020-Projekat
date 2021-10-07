@@ -26,7 +26,7 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
     private RecyclerView postsRecView;
     private TextView username;
     private FloatingActionButton fab;
-//    private PostsRecViewAdapter adapter;
+    private PostsRecViewAdapter adapter;
 
     @Nullable
     @Override
@@ -34,7 +34,7 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
         postsRecView = view.findViewById(R.id.posts_rec_view);
-        PostsRecViewAdapter adapter = new PostsRecViewAdapter();
+        adapter = new PostsRecViewAdapter();
         adapter.setPosts(PostsData.getInstance().getPosts());
         adapter.setCommunicator(new FragmentCommunicator() {
             @Override
@@ -42,7 +42,7 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(Constants.USER_KEY, filterModel.userKey);
                 //bundle.putSerializable(Constants.FREINDS_KEY, users);
-                PetsFragment petsFragment = new PetsFragment(new PetFilterModel());
+                PetsFragment petsFragment = new PetsFragment(filterModel);
                 petsFragment.setArguments(bundle);
                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
             }
@@ -75,7 +75,7 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
 
     @Override
     public void OnPostsListUpdated() {
-        PostsRecViewAdapter adapter = new PostsRecViewAdapter();
+        //PostsRecViewAdapter adapter = new PostsRecViewAdapter();
         adapter.setPosts(PostsData.getInstance().getPosts());
 
         postsRecView.setAdapter(adapter);
