@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import rs.elfak.findpet.Activities.MainActivity;
 import rs.elfak.findpet.Adapters.ClusterSpinnerAdapter;
 import rs.elfak.findpet.Enums.CaseType;
 import rs.elfak.findpet.Helpers.Constants;
@@ -43,6 +46,8 @@ public class MapsFragment extends Fragment {
     private ClusterSpinnerAdapter clusterSpinnerAdapter;
     private User currentUser;
     private ArrayList<User> users;
+    private Button btnMyMarker;
+    private ProgressDialog progressDialog;
 
     private LatLngBounds mMapBoundary;
     private ClusterManager<ClusterMarker> mClusterManager;
@@ -56,7 +61,8 @@ public class MapsFragment extends Fragment {
         //from main activity
         currentUser = (User) getArguments().getSerializable(Constants.USER_KEY);
         users = (ArrayList<User>) getArguments().getSerializable(Constants.FREINDS_KEY);
-        return inflater.inflate(R.layout.fragment_maps, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
+        return  rootView;
     }
 
     @Override
@@ -65,17 +71,24 @@ public class MapsFragment extends Fragment {
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
+            // setup a progress dialog
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setCancelable(false);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setTitle("please wait..");
+
+            progressDialog.show();
             mapFragment.getMapAsync(callback);
         }
 
         //TODO Investigate why onClick and onSelectItem listeners don't work in Google map activities
 
-        caseTypeSpinner = (Spinner) view.findViewById(R.id.mapsFragment_caseTypeSpinner);
+        caseTypeSpinner = (Spinner) getView().findViewById(R.id.mapsFragment_caseTypeSpinner);
         caseTypeSpinner.setAdapter(new ArrayAdapter<CaseType>(getContext(), R.layout.spinner_item, CaseType.values()));
         caseTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getContext(), "clicked: " + CaseType.values()[i].toString(), Toast.LENGTH_LONG);
+                Toast.makeText(getContext(), "clicked: " + CaseType.values()[i].toString(), Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -84,24 +97,19 @@ public class MapsFragment extends Fragment {
             }
         });
 
-        // And finally send the Users array (Your data)
-        markersSpinner = (Spinner) view.findViewById(R.id.mapsFragment_markersSpinner);
-        clusterSpinnerAdapter = new ClusterSpinnerAdapter(getContext(),
-                android.R.layout.simple_spinner_item,
-                mClusterMarkers);
-        markersSpinner.setAdapter(clusterSpinnerAdapter); // Set the custom adapter to the spinner
-        // You can create an anonymous listener to handle the event when is selected an spinner item
-        markersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        markersSpinner = (Spinner) getView().findViewById(R.id.mapsFragment_markersSpinner); //adapter for this spinner is set after markers added in onMapReady function
+
+        btnMyMarker = view.findViewById(R.id.mapsFragment_btnZoomMyMarker);
+        btnMyMarker.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view,
-                                       int position, long id) {
-                ClusterMarker marker = clusterSpinnerAdapter.getItem(position);
-                cameraZoomToLocation(marker.position);
-                Log.i("MOVE MARKER", "selected user: " + marker.user);
+            public void onClick(View view) {
+                Log.i("MAPS", "btn clicked");
+                Toast.makeText(getContext(), "Clicked", Toast.LENGTH_LONG).show();
+                cameraZoomToLocation(currentUser.location.getLocation());
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> adapter) {  }
         });
+
+
     }
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -126,6 +134,9 @@ public class MapsFragment extends Fragment {
 
             //TODO create marker with picture, only for friends
             addMapMarkers();
+
+            initMarkersSpinner();
+            progressDialog.dismiss();
 
             Log.i("MAPS", "On map create method");
         }
@@ -197,6 +208,7 @@ public class MapsFragment extends Fragment {
             mClusterManager.cluster();
 
             setCameraView();
+
 //            cameraZoomToLocation(currentUser.location.getLocation());
         }
 
@@ -220,5 +232,28 @@ public class MapsFragment extends Fragment {
         );
 
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary, 0));
+    }
+
+    private void initMarkersSpinner() {
+        clusterSpinnerAdapter = new ClusterSpinnerAdapter(getContext(),
+                0,
+                mClusterMarkers);
+        markersSpinner.setAdapter(clusterSpinnerAdapter); // Set the custom adapter to the spinner
+
+        // You can create an anonymous listener to handle the event when is selected an spinner item
+//        markersSpinner.setAdapter(new ArrayAdapter<ClusterMarker>(getContext(), R.layout.spinner_item, mClusterMarkers));
+        markersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                ClusterMarker marker = clusterSpinnerAdapter.getItem(i);
+                cameraZoomToLocation(marker.position);
+                Log.i("MOVE MARKER", "selected user: " + marker.user);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 }

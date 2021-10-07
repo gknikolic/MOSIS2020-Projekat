@@ -50,24 +50,32 @@ public class ClusterSpinnerAdapter extends ArrayAdapter<ClusterMarker> {
     // This is for the "passive" state of the spinner
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // I created a dynamic TextView here, but you can reference your own  custom layout for each spinner item
-        TextView label = (TextView) inflator.inflate(R.layout.spinner_item, null);
-//        TextView label = (TextView) super.getView(position, convertView, parent);
-//        label.setTextColor(Color.WHITE);
+        // It is used to set our custom view.
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.spinner_item, parent, false);
+        }
 
+        TextView label = (TextView) convertView;
         label.setText(values.get(position).user.username);
-        return label;
+
+        return convertView;
     }
 
     // And here is when the "chooser" is popped up
     // Normally is the same view, but you can customize it if you want
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-//        TextView label = (TextView) super.getDropDownView(position, convertView, parent);
-        TextView label = (TextView) inflator.inflate(R.layout.spinner_item, null);
-//        label.setTextColor(Color.WHITE);
+        // It is used to set our custom view.
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.spinner_item, parent, false);
+        }
+
+        TextView label = (TextView) convertView;
         label.setText(values.get(position).user.username);
 
-        return label;
+        return convertView;
     }
+
+
+
 }

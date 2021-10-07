@@ -3,11 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="176dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/blue"
+    android:background="@color/design_default_color_primary"
     android:gravity="bottom"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:theme="@style/Theme.FindPet">
+    android:padding="8dp">
 
     <androidx.cardview.widget.CardView
         android:layout_width="@dimen/user_image_nav_menu"
@@ -43,12 +42,14 @@
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
         android:text="User Name"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/design_default_color_on_primary"/>
 
     <TextView
         android:id="@+id/nav_header_location_service_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add some details of user here" />
+        android:text="Add some details of user here"
+        android:textColor="@color/design_default_color_on_primary"/>
 
 </LinearLayout>

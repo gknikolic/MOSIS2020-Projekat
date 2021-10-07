@@ -5,7 +5,9 @@ import android.graphics.Bitmap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
-public class ClusterMarker implements ClusterItem {
+import java.io.Serializable;
+
+public class ClusterMarker implements ClusterItem, Serializable {
     public LatLng position;
     public String title;
     public String snippet;

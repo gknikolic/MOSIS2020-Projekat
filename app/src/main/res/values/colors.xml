@@ -8,4 +8,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#2699FB</color>
+    
+<!--    theme colors-->
+    <color name="charcoal">#264653</color>
+    <color name="persianGreen">#2A9D8F</color>
+    <color name="orangeYellowCrayaola">#E9C46A</color>
+    <color name="sandyBrown">#F4A261</color>
+    <color name="burntSiena">#E76F51</color>
+
+
 </resources>

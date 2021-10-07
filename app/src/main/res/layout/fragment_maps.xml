@@ -18,6 +18,13 @@
         android:layout_below="@+id/mapsFragment_caseTypeSpinner"
         android:layout_marginBottom="@dimen/fab_margin" />
 
+    <Button
+        android:id="@+id/mapsFragment_btnZoomMyMarker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/mapsFragment_markersSpinner"
+        android:text="zoom my marker" />
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"

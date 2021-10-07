@@ -41,8 +41,7 @@
         android:background="@drawable/round_button"
         android:paddingLeft="@dimen/fragmentPadding"
         android:paddingRight="@dimen/fragmentPadding"
-        android:text="@string/change_profile_picture"
-        android:textColor="@color/design_default_color_on_primary" />
+        android:text="@string/change_profile_picture" />
 
     <LinearLayout
         android:id="@+id/userSettings_layoutUpdateUser"
@@ -61,9 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/round_input"
-            android:hint="@string/fullname"
-            android:textColor="@color/design_default_color_primary"
-            android:textColorHint="@color/design_default_color_primary" />
+            android:hint="@string/fullname" />
 
         <EditText
             android:id="@+id/userSettings_phoneNumber"
@@ -71,9 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/round_input"
-            android:hint="@string/phone_number"
-            android:textColor="@color/design_default_color_primary"
-            android:textColorHint="@color/design_default_color_primary" />
+            android:hint="@string/phone_number" />
 
 
         <Button
@@ -82,7 +77,6 @@
             android:layout_height="wrap_content"
             android:background="@drawable/round_button"
             android:text="@string/update_user"
-            android:textColor="@color/design_default_color_on_primary"
             android:layout_marginTop="@dimen/fab_margin"/>
 
     </LinearLayout>
@@ -112,8 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fab_margin"
             android:background="@drawable/round_button"
-            android:text="@string/on"
-            android:textColor="@color/design_default_color_on_primary" />
+            android:text="@string/on" />
 
         <Button
             android:id="@+id/userSettings_btnDisableService"
@@ -121,7 +114,6 @@
             android:layout_height="wrap_content"
             android:background="@drawable/round_button"
             android:text="@string/off"
-            android:textColor="@color/design_default_color_on_primary"
             android:layout_marginTop="@dimen/fab_margin"/>
 
 

@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="@dimen/container_padding"
-    android:background="@color/design_default_color_on_primary"
     android:layout_marginBottom="@dimen/fab_margin">
 
     <RelativeLayout
@@ -53,8 +52,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@id/post_userImageContainer"
-                android:text="UserName"
-                android:textColor="@color/design_default_color_primary" />
+                android:text="UserName" />
         </RelativeLayout>
 
 
@@ -66,8 +64,7 @@
             android:layout_centerVertical="true"
             android:drawableStart="@drawable/ic_baseline_access_time_24"
             android:drawablePadding="@dimen/drawablePadding"
-            android:text="1h ago"
-            android:textColor="@color/design_default_color_primary" />
+            android:text="1h ago" />
     </RelativeLayout>
 
     <TextView
@@ -75,8 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/post_header"
-        android:text="Izgubljen je pas star oko 2 godine, odaziva se na ime Džeki."
-        android:textColor="@color/design_default_color_primary" />
+        android:text="Izgubljen je pas star oko 2 godine, odaziva se na ime Džeki." />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/post_imageContainer"
