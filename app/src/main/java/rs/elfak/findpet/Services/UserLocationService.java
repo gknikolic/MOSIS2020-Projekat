@@ -24,6 +24,8 @@ import java.util.List;
 
 import rs.elfak.findpet.App;
 import rs.elfak.findpet.Activities.MainActivity;
+import rs.elfak.findpet.Enums.FragmentName;
+import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.data_models.User;
@@ -169,6 +171,7 @@ public class UserLocationService extends Service implements UsersListEventListen
 
     private void sendUserNearNotification(String username){
         Intent notificationIntent = new Intent(this, MainActivity.class); //ovde treba mapa da se otvori
+        notificationIntent.putExtra(Constants.FRAGMENT_ENUM_KEY, FragmentName.Maps);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 0,
@@ -229,6 +232,11 @@ public class UserLocationService extends Service implements UsersListEventListen
                 }
             }
         }
+    }
+
+    @Override
+    public void CurrentUserLoaded() {
+
     }
 
     @Override

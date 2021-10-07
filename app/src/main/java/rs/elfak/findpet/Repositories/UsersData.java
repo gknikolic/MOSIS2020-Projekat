@@ -32,6 +32,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class UsersData {
     private static final String TAG = "UsersData";
@@ -39,8 +40,8 @@ public class UsersData {
     private HashMap<String, Integer> usersKeyIndexMapping;
     private DatabaseReference dbReference;
     private static final String FIREBASE_CHILD = "users";
+    private ArrayList<UsersListEventListener> updateListeners = new ArrayList<>();
     private static final String FIRESTORE_CHILD = "profilePictures";
-    private UsersListEventListener updateListener;
 
     public void setCurrentUserUID(String currentUserUID) {
         this.currentUserUID = currentUserUID;
@@ -67,8 +68,9 @@ public class UsersData {
                                 user.profilePicture= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                                 users.add(user);
                                 usersKeyIndexMapping.put(userKey, users.size() - 1);
-                                if (updateListener != null) {
-                                    updateListener.OnUsersListUpdated();
+                                notifyUsersListUpdated();
+                                if(user.key.equals(currentUserUID)) {
+                                    notifyCurrentUserLoaded();
                                 }
                                 Log.i("USER ON ADD", "===========================ADDED USER WITH PROFILE PICTURE " + user.username);
                             }
@@ -78,9 +80,7 @@ public class UsersData {
                                 users.add(user);
                                 usersKeyIndexMapping.put(userKey, users.size()-1);
                                 Log.i("OnFailure", "##############################FAILED############################");
-                                if (updateListener != null) {
-                                    updateListener.OnUsersListUpdated();
-                                }
+                                notifyUsersListUpdated();
                             }
                         });
                     }
@@ -88,17 +88,16 @@ public class UsersData {
                         users.add(user);
                         usersKeyIndexMapping.put(userKey, users.size()-1);
                         Log.i("USER ON ADD", "===========================ADDED USER WITHOUT PROFILE PICTURE " + user.username);
-                        if (updateListener != null) {
-                            updateListener.OnUsersListUpdated();
+                        notifyUsersListUpdated();
+                        if(user.key.equals(currentUserUID)) {
+                            notifyCurrentUserLoaded();
                         }
                     }
 
                 }catch (Exception e){
                     users.add(user);
                     usersKeyIndexMapping.put(userKey, users.size()-1);
-                    if (updateListener != null) {
-                        updateListener.OnUsersListUpdated();
-                    }
+                    notifyUsersListUpdated();
                 }
             }
         }
@@ -117,27 +116,21 @@ public class UsersData {
                             user.profilePicture = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                             int index = usersKeyIndexMapping.get(userKey);
                             users.set(index, user);
-                            if (updateListener != null) {
-                                updateListener.OnUsersListUpdated();
-                            }
+                            notifyUsersListUpdated();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             int index = usersKeyIndexMapping.get(userKey);
                             users.set(index, user);
-                            if (updateListener != null) {
-                                updateListener.OnUsersListUpdated();
-                            }
+                            notifyUsersListUpdated();
                         }
                     });
                 }
                 else {
                     int index = usersKeyIndexMapping.get(userKey);
                     users.set(index, user);
-                    if (updateListener != null) {
-                        updateListener.OnUsersListUpdated();
-                    }
+                    notifyUsersListUpdated();
                 }
             }
             else{
@@ -148,26 +141,20 @@ public class UsersData {
                             user.profilePicture= BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                             users.add(user);
                             usersKeyIndexMapping.put(userKey, users.size() - 1);
-                            if (updateListener != null) {
-                                updateListener.OnUsersListUpdated();
-                            }
+                            notifyUsersListUpdated();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             users.add(user);
                             usersKeyIndexMapping.put(userKey, users.size() - 1);
-                            if (updateListener != null) {
-                                updateListener.OnUsersListUpdated();
-                            }
+                            notifyUsersListUpdated();
                         }
                     });
                 }else {
                     users.add(user);
                     usersKeyIndexMapping.put(userKey, users.size() - 1);
-                    if (updateListener != null) {
-                        updateListener.OnUsersListUpdated();
-                    }
+                    notifyUsersListUpdated();
                 }
             }
         }
@@ -180,9 +167,7 @@ public class UsersData {
                 users.remove(index);
                 recreateKeyIndexMapping();
             }
-            if (updateListener != null) {
-                updateListener.OnUsersListUpdated();
-            }
+            notifyUsersListUpdated();
         }
 
         @Override
@@ -206,8 +191,7 @@ public class UsersData {
     private final ValueEventListener parentEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
-            if (updateListener != null)
-                updateListener.OnUsersListUpdated();
+            notifyUsersListUpdated();
         }
 
         @Override
@@ -308,8 +292,25 @@ public class UsersData {
         });
     }
 
-    public void setUpdateListener(UsersListEventListener listener) {
-        updateListener = listener;
+    public void addUpdateListener(UsersListEventListener listener) {
+        updateListeners.add(listener);
+    }
+
+    public void removeUpdateListener(UsersListEventListener listener) {
+        updateListeners.remove(listener);
+    }
+
+    //this will update all view subscribed to users list db
+    private void notifyUsersListUpdated() {
+        for (UsersListEventListener listener: updateListeners.toArray(new UsersListEventListener[0])) {
+            listener.OnUsersListUpdated();
+        }
+    }
+
+    private void notifyCurrentUserLoaded() {
+        for (UsersListEventListener listener: updateListeners.toArray(new UsersListEventListener[0])) {
+            listener.CurrentUserLoaded();
+        }
     }
 
     public User getCurrentLoggedUser(){

@@ -10,12 +10,14 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -29,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
+import rs.elfak.findpet.Enums.FragmentName;
 import rs.elfak.findpet.Fragments.DashboardFragment;
 import rs.elfak.findpet.Fragments.MapsFragment;
 import rs.elfak.findpet.Fragments.MessagesFragment;
@@ -49,13 +52,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView username;
     private TextView locationServiceStatus;
     private ImageView profileImage;
+    private FragmentName startupFragment = FragmentName.Dashboard;
     NavigationView navigationView;
+    ProgressDialog progressDialog;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        //TODO Check how this affect location service
+        int id= android.os.Process.myPid();
+        android.os.Process.killProcess(id);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        UsersData.getInstance().setUpdateListener(this);
+        UsersData.getInstance().addUpdateListener(this);
 
         sharedPreferences = getSharedPreferences("login", MODE_PRIVATE);
         if(!sharedPreferences.getBoolean("isLogged", false)){
@@ -66,7 +80,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         InitSideBar(savedInstanceState);
         UsersData.getInstance().setCurrentUserUID(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        UsersData.getInstance().setUpdateListener(this);
+
+        //show progressbar dialog
+        LoadCurrentUser waitToLoadUser = new LoadCurrentUser();
+        waitToLoadUser.execute();
+
+        Intent i = getIntent();
+        FragmentName possibleStartupFragment = (FragmentName) i.getSerializableExtra(Constants.FRAGMENT_ENUM_KEY);
+        if(possibleStartupFragment != null) {
+            this.startupFragment = possibleStartupFragment;
+        }
 
         this.registerLogOutBroadcastReceiver();
     }
@@ -108,6 +131,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             this.locationServiceStatus.setText("Location service status: " + (currentUser.locationEnabled ? "enabled" : "disabled"));
             this.profileImage.setImageBitmap(currentUser.profilePicture);
         }
+    }
+
+    @Override
+    public void CurrentUserLoaded() {
+
     }
 
     @Override
@@ -181,6 +209,77 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sharedPreferences.edit().putBoolean("isLogged", false).apply();
         Intent i = new Intent(MainActivity.this, GetStartedActivity.class);
         startActivity(i);
+    }
+
+    //AsyncTask<params, progress, result>
+    class LoadCurrentUser extends AsyncTask<Void, Integer, Boolean> implements UsersListEventListener{
+
+        protected boolean isLoaded = false;
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            UsersData.getInstance().removeUpdateListener(this);
+
+            //switch to fragment on starting app
+            navigationView.getMenu().getItem(startupFragment.getValue()).setChecked(true);
+            onNavigationItemSelected(navigationView.getMenu().getItem(startupFragment.getValue()));
+
+            progressDialog.dismiss();
+            Log.i("BACKGROUND_TASK", "Finished.");
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... usersData) {
+            //bad solution because of pulling
+//            while(UsersData.getInstance().getCurrentLoggedUser() == null)
+//            {
+//                try {
+//                    Thread.currentThread().sleep(50);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                Log.i("BACKGROUND_TASK", "Waiting for current user to be loaded");
+//            }
+
+            while (isLoaded == false) {} //keep thread alive until callback for loaded current user is not called
+            Log.i("BACKGROUND_TASK", "Current user is loaded.");
+            return true;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.i("BACKGROUND_TASK", "Started.");
+
+            UsersData.getInstance().addUpdateListener(this);
+
+            // setup a progress dialog
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setCancelable(false);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setTitle("please wait..");
+
+            progressDialog.show();
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+//            progressDialog.setProgress(values[0]);
+        }
+
+        @Override
+        public void OnUsersListUpdated() {
+//            Log.i("BACKGROUND_TASK", "Callback");
+        }
+
+        @Override
+        public void CurrentUserLoaded() {
+            isLoaded = true;
+        }
     }
 
 }
