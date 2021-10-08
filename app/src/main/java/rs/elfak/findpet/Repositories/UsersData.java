@@ -5,13 +5,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import rs.elfak.findpet.Helpers.Constants;
+import rs.elfak.findpet.Helpers.GetArrayListFromStream;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.data_models.User;
 
@@ -119,6 +122,7 @@ public class UsersData {
                             int index = usersKeyIndexMapping.get(userKey);
                             users.set(index, user);
                             notifyUsersListUpdated();
+                            notifyUserLocationChanged(userKey);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -133,6 +137,7 @@ public class UsersData {
                     int index = usersKeyIndexMapping.get(userKey);
                     users.set(index, user);
                     notifyUsersListUpdated();
+                    notifyUserLocationChanged(userKey);
                 }
             }
             else{
@@ -144,6 +149,7 @@ public class UsersData {
                             users.add(user);
                             usersKeyIndexMapping.put(userKey, users.size() - 1);
                             notifyUsersListUpdated();
+                            notifyUserLocationChanged(userKey);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -157,6 +163,7 @@ public class UsersData {
                     users.add(user);
                     usersKeyIndexMapping.put(userKey, users.size() - 1);
                     notifyUsersListUpdated();
+                    notifyUserLocationChanged(userKey);
                 }
             }
         }
@@ -315,6 +322,12 @@ public class UsersData {
         }
     }
 
+    private void notifyUserLocationChanged(String userKey) {
+        for (UsersListEventListener listener: updateListeners.toArray(new UsersListEventListener[0])) {
+            listener.OnUserLocationChanged(userKey);
+        }
+    }
+
     public void sendFriendRequest(String receiverUserKey, Context context) {
         User currentLoggedUser = getCurrentLoggedUser();
         if (currentLoggedUser.friends.containsKey(receiverUserKey))
@@ -397,4 +410,33 @@ public class UsersData {
     public User getCurrentLoggedUser(){
         return getUser(currentUserUID);
     }
+
+    public ArrayList<User> getFriends(String userKey) {
+        ArrayList<User> friends = new ArrayList<>();
+        User currentUser = getCurrentLoggedUser();
+        if(currentUser.friends != null) {
+            for (User user: users) {
+                if(user.key != currentUserUID  && currentUser.friends.containsKey(user.key)) {
+                    friends.add(user);
+                }
+            }
+        }
+
+        return friends;
+    }
+
+    public ArrayList<User> getUnFriends(String userKey) {
+        ArrayList<User> unfriends = new ArrayList<>();
+        User currentUser = getCurrentLoggedUser();
+        if(currentUser.friends != null) {
+            for (User user: users) {
+                if(user.key != currentUserUID  && currentUser.friends.containsKey(user.key) == false) {
+                    unfriends.add(user);
+                }
+            }
+        }
+
+        return unfriends;
+    }
+
 }

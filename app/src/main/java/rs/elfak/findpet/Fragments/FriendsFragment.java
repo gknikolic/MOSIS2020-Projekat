@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.TaskInfo;
 import android.graphics.Bitmap;
@@ -103,15 +104,11 @@ public class FriendsFragment extends Fragment {
             public void onClick(View view) {
                 if(showOtherUsersSwitch.isChecked()) {
                     UsersData.getInstance().addUpdateListener(userCallback);
-                    addMapMarkersWithPicture(null).addOnSuccessListener(new OnSuccessListener() {
-                        @Override
-                        public void onSuccess(Object o) {
-                            clusterSpinnerAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    addMapMarkersWithPicture(null);
                 }
                 else {
                     UsersData.getInstance().removeUpdateListener(userCallback);
+                    removeMarkersWithPicture(null); //remove all except current user
                 }
             }
         });
@@ -147,7 +144,7 @@ public class FriendsFragment extends Fragment {
         }
     };
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+    private final OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         /**
          * Manipulates the map once available.
@@ -158,7 +155,7 @@ public class FriendsFragment extends Fragment {
          * install it inside the SupportMapFragment. This method will only be triggered once the
          * user has installed Google Play services and returned to the app.
          */
-        @RequiresApi(api = Build.VERSION_CODES.N)
+        @SuppressLint("MissingPermission")
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
@@ -171,15 +168,13 @@ public class FriendsFragment extends Fragment {
             initMarkersSpinner();
 
             //on app start add only current user
-            Tasl<void> task = new Task<>() {
-                addMapMarkersWithPicture(currentUser.key).addOnSuccessListener(new OnSuccessListener() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        clusterSpinnerAdapter.notifyDataSetChanged();
-                    }
-                });
-            };
+            addMapMarkersWithPicture(currentUser.key);
 
+            clusterSpinnerAdapter.notifyDataSetChanged();
+
+            map.setMyLocationEnabled(true);
+
+            setCameraView();
 
             progressDialog.dismiss();
 
@@ -197,8 +192,7 @@ public class FriendsFragment extends Fragment {
         map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void addMapMarkersWithPicture(@Nullable String userKey){
+    private void addMapMarkersWithPicture(@Nullable String userKey) {
 
         if(map != null){
 
@@ -214,13 +208,16 @@ public class FriendsFragment extends Fragment {
                 mClusterManager.setRenderer(mClusterManagerRenderer);
             }
 
-            List<User> friends = new ArrayList<>();
+            ArrayList<User> friends = new ArrayList<>();
             if(userKey != null) {
-                friends
+                //this if is for adding cluster for current user
+                friends = new ArrayList<>();
+                friends.add(UsersData.getInstance().getUser(userKey));
             }
             else {
                 //add all friends
-                friends = new GetArrayListFromStream<User>().get(users.stream().filter(x -> true));
+                friends = UsersData.getInstance().getFriends(currentUser.key);
+                Log.i("MAPS", "Fetched " + friends.size() + " for adding cluster");
             }
 
             for(User friend: friends){
@@ -260,13 +257,97 @@ public class FriendsFragment extends Fragment {
                 }
 
             }
+
+//            for(User friend: friends){
+//
+////                Log.d("CLUSTER_MARKER", "addMapMarkers: location: " + userLocation.getGeo_point().toString());
+//                try{
+//                    String snippet = "";
+//                    if(friend.getUser_id().equals(currentUser.getUser_id())) {
+//                        snippet = "This is you";
+//                    }
+//                    else{
+//                        snippet = "Determine route to " + friend.username + "?";
+//                    }
+//
+//                    Bitmap avatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar);; // set the default avatar
+//                    try{
+//                        if(friend.profilePicture != null) {
+//                            avatar = friend.profilePicture;
+//                        }
+//                    }catch (NumberFormatException e){
+//                        Log.d("MAPS", "addMapMarkers: no avatar for " + friend.username + ", setting default.");
+//                    }
+//                    if(friend.location != null) {
+//                        UserClusterMarker newClusterMarker = new UserClusterMarker(
+//                                friend.location.getLocation(),
+//                                friend.username,
+//                                snippet,
+//                                avatar,
+//                                friend
+//                        );
+//                        mClusterManager.addItem(newClusterMarker);
+//                        mClusterMarkers.add(newClusterMarker);
+//                    }
+//
+//                }catch (NullPointerException e){
+//                    Log.e("MAPS", "addMapMarkers: NullPointerException: " + e.getMessage() );
+//                }
+//
+//            }
+
             mClusterManager.cluster();
 
-            setCameraView();
+            clusterSpinnerAdapter.notifyDataSetChanged();
+
+            //setCameraView();
 
 //            cameraZoomToLocation(currentUser.location.getLocation());
         }
-        return null;
+    }
+
+    private void removeMarkersWithPicture(@Nullable String userKey) {
+        if(map != null) {
+
+            if (mClusterManager == null) {
+                mClusterManager = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
+            }
+            if (mClusterManagerRenderer == null) {
+                mClusterManagerRenderer = new MyClusterManagerRenderer(
+                        getActivity(),
+                        map,
+                        mClusterManager
+                );
+                mClusterManager.setRenderer(mClusterManagerRenderer);
+            }
+
+
+            ArrayList<User> friends = new ArrayList<>();
+            if(userKey != null) {
+                //delete only one marker
+                friends.add(UsersData.getInstance().getUser(userKey));
+            }
+            else {
+                friends = UsersData.getInstance().getFriends(currentUser.key);
+            }
+
+
+            Log.i("MAPS", "Delete " + friends.size() + " markers.");
+
+            for (User friend: friends) {
+                ClusterMarker cluster = getClusterMarker(friend.key);
+                if(cluster != null) {
+                    mClusterManager.removeItem(cluster);
+                    mClusterMarkers.remove(cluster);
+                }
+            }
+
+            mClusterManager.cluster();
+
+            clusterSpinnerAdapter.notifyDataSetChanged();
+
+            //setCameraView();
+        }
     }
 
     /**
@@ -313,6 +394,30 @@ public class FriendsFragment extends Fragment {
     }
 
     private void changeUserLocationOnMap(String userKey) {
+        if(currentUser.friends != null && currentUser.friends.containsKey(userKey)) {
+            //friend -> change cluster marker with picture
+            Log.i("MAPS", "Friend " + UsersData.getInstance().getUser(userKey) + " changed location.");
+            ClusterMarker cluster = getClusterMarker(userKey);
+            if(cluster != null) {
+                Log.i("MAPS", "Friend " + UsersData.getInstance().getUser(userKey) + " deleting location.");
+                removeMarkersWithPicture(userKey);
+                addMapMarkersWithPicture(userKey);
+            }
+        }
+        else {
+            //not friend -> change basic marker
+            Log.i("MAPS", UsersData.getInstance().getUser(userKey) + " changed location.");
+        }
+    }
 
+    private ClusterMarker getClusterMarker(String userKey) {
+        ClusterMarker cluster = null;
+        for (ClusterMarker marker: mClusterMarkers) {
+            if(((UserClusterMarker) marker).user.key.equals(userKey)){
+                cluster = marker;
+                break;
+            }
+        }
+        return cluster;
     }
 }
