@@ -81,7 +81,6 @@ public class PetsFragment extends Fragment {
     private Button btnClearFilters;
     private TextView resultCount;
     private Spinner resultSpinner;
-    private ArrayAdapter resultSpinnerAdapter;
 
     //adapters
 
@@ -188,10 +187,6 @@ public class PetsFragment extends Fragment {
 
         resultCount = getView().findViewById(R.id.petsFragment_resultCount);
 
-        resultSpinner = getView().findViewById(R.id.petsFragment_petsFoundedSpinner);
-        resultSpinnerAdapter = new ArrayAdapter<Post>(getContext(), R.layout.spinner_item, posts);
-        resultSpinner.setAdapter(resultSpinnerAdapter);
-
         btnApplyFilters = (Button) getView().findViewById(R.id.petsFragment_btnApplyFilters);
         btnApplyFilters.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -255,7 +250,7 @@ public class PetsFragment extends Fragment {
             addMapMarkers(null);
         }
 
-        resultSpinnerAdapter.notifyDataSetChanged();
+        customSpinnerAdapter.notifyDataSetChanged();
         resultCount.setText(getString(R.string.pet_result_first_part) + posts.size() + getString(R.string.pet_result_second_part));
 
         progressDialogForFiltering.dismiss();
@@ -280,13 +275,39 @@ public class PetsFragment extends Fragment {
 
             progressDialogForMaps.dismiss();
 
-            map.setMyLocationEnabled(true);
+            initResultSpinner();
+
+            map.setMyLocationEnabled(true);;
 
             ApplyFilterSync();
 
             Log.i("MAPS", "On map create method");
         }
     };
+
+    private void initResultSpinner() {
+        resultSpinner = getView().findViewById(R.id.petsFragment_petsFoundedSpinner);
+        customSpinnerAdapter = new CustomSpinnerAdapter(getContext(),
+                0,
+                mClusterMarkers);
+        resultSpinner.setAdapter(customSpinnerAdapter); // Set the custom adapter to the spinner
+
+        // You can create an anonymous listener to handle the event when is selected an spinner item
+//        markersSpinner.setAdapter(new ArrayAdapter<ClusterMarker>(getContext(), R.layout.spinner_item, mClusterMarkers));
+        resultSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                ClusterMarker marker = customSpinnerAdapter.getItem(i);
+                cameraZoomToLocation(marker.position);
+                Log.i("MOVE MARKER", "selected user: " + marker.toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
 
     private void cameraZoomToLocation(LatLng location) {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
@@ -376,7 +397,7 @@ public class PetsFragment extends Fragment {
                 mClusterManager.cluster();
 
                 resultCount.setText(getString(R.string.pet_result_first_part) + posts.size() + getString(R.string.pet_result_second_part));
-                resultSpinnerAdapter.notifyDataSetChanged();
+                customSpinnerAdapter.notifyDataSetChanged();
 
                 //setCameraView();
             }
