@@ -1,5 +1,6 @@
 package rs.elfak.findpet.Fragments;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -107,7 +108,7 @@ public class PetsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.friendsFragment_map);
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.petsFragment_map);
         if (mapFragment != null) {
             // setup a progress dialog
             progressDialogForMaps = new ProgressDialog(getContext());
@@ -188,7 +189,7 @@ public class PetsFragment extends Fragment {
         resultCount = getView().findViewById(R.id.petsFragment_resultCount);
 
         resultSpinner = getView().findViewById(R.id.petsFragment_petsFoundedSpinner);
-        resultSpinnerAdapter = new ArrayAdapter<Post>(getContext(), R.layout.spinner_item, this.posts);
+        resultSpinnerAdapter = new ArrayAdapter<Post>(getContext(), R.layout.spinner_item, posts);
         resultSpinner.setAdapter(resultSpinnerAdapter);
 
         btnApplyFilters = (Button) getView().findViewById(R.id.petsFragment_btnApplyFilters);
@@ -208,6 +209,7 @@ public class PetsFragment extends Fragment {
                 tbxName.setText("");
                 tbxRadius.setValue(-1);
                 filterModel = new PetFilterModel();
+                ApplyFilterSync();
                 Toast.makeText(getContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
             }
         });
@@ -216,9 +218,6 @@ public class PetsFragment extends Fragment {
         caseTypeSpinner.setSelection(filterModel.caseType != null ? filterModel.caseType.getValue() + 1 : 0);
         petTypeSpinner.setSelection(filterModel.petType != null ? filterModel.petType.getValue() + 1 : 0);
         tbxRadius.setValue(filterModel.radius); //default is -1
-
-        ApplyFilterSync();
-
 
     }
 
@@ -236,7 +235,7 @@ public class PetsFragment extends Fragment {
         }
         else {
             filterModel = new PetFilterModel();
-            filterModel.name = tbxName.getText().toString();
+            filterModel.name = tbxName.getText().toString().trim().length() == 0 ? null : tbxName.getText().toString();
             filterModel.caseType = caseTypeSpinner.getSelectedItemId() == 0 ? null : CaseType.values()[(int)caseTypeSpinner.getSelectedItemId() - 1];
             filterModel.petType = petTypeSpinner.getSelectedItemId() == 0 ? null : PetType.values()[(int)petTypeSpinner.getSelectedItemId() - 1];
             filterModel.radius = tbxRadius.getValue() > 0 ? tbxRadius.getValue() : -1;
@@ -274,12 +273,16 @@ public class PetsFragment extends Fragment {
          * install it inside the SupportMapFragment. This method will only be triggered once the
          * user has installed Google Play services and returned to the app.
          */
+        @SuppressLint("MissingPermission")
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
 
             progressDialogForMaps.dismiss();
 
+            map.setMyLocationEnabled(true);
+
+            ApplyFilterSync();
 
             Log.i("MAPS", "On map create method");
         }
@@ -360,24 +363,23 @@ public class PetsFragment extends Fragment {
 
     private void removeMarkers() {
         if(map != null) {
-
-            Log.i("MAPS", "Delete " + users.size() + " markers.");
-
-            for (Post post: posts) {
-                ClusterMarker cluster = getClusterMarker(post.key);
-                if(cluster != null) {
-                    mClusterManager.removeItem(cluster);
-                    mClusterMarkers.remove(cluster);
+            if(posts != null && posts.size() > 0) {
+                for (Post post: posts) {
+                    ClusterMarker cluster = getClusterMarker(post.key);
+                    if(cluster != null) {
+                        mClusterManager.removeItem(cluster);
+                        mClusterMarkers.remove(cluster);
+                    }
                 }
+
+                //update view
+                mClusterManager.cluster();
+
+                resultCount.setText(getString(R.string.pet_result_first_part) + posts.size() + getString(R.string.pet_result_second_part));
+                resultSpinnerAdapter.notifyDataSetChanged();
+
+                //setCameraView();
             }
-
-            //update view
-            mClusterManager.cluster();
-
-            resultCount.setText(getString(R.string.pet_result_first_part) + posts.size() + getString(R.string.pet_result_second_part));
-            resultSpinnerAdapter.notifyDataSetChanged();
-
-            //setCameraView();
         }
     }
 
@@ -399,108 +401,112 @@ public class PetsFragment extends Fragment {
      */
     private void setCameraView() {
 
-        // Set a boundary to start
-        double bottomBoundary = currentUser.location.latitude - .1;
-        double leftBoundary = currentUser.location.longitude - .1;
-        double topBoundary = currentUser.location.latitude + .1;
-        double rightBoundary = currentUser.location.longitude + .1;
+        if(posts != null && posts.size() > 0) {
+            Post post = posts.get(0);
 
-        mMapBoundary = new LatLngBounds(
-                new LatLng(bottomBoundary, leftBoundary),
-                new LatLng(topBoundary, rightBoundary)
-        );
+            // Set a boundary to start
+            double bottomBoundary = post.location.latitude - .1;
+            double leftBoundary = post.location.longitude - .1;
+            double topBoundary = post.location.latitude + .1;
+            double rightBoundary = post.location.longitude + .1;
 
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary, 0));
+            mMapBoundary = new LatLngBounds(
+                    new LatLng(bottomBoundary, leftBoundary),
+                    new LatLng(topBoundary, rightBoundary)
+            );
+
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary, 0));
+        }
     }
 
     //AsyncTask<params, progress, result>
-    class ApplyFilter extends AsyncTask<Void, Integer, List<Post>> implements UsersListEventListener {
-
-        PetFilterModel myFilterModel;
-
-        protected boolean isLoaded = false;
-
-        @Override
-        protected void onPostExecute(List<Post> result) {
-            super.onPostExecute(result);
-
-            posts = result;
-
-            removeMarkers();
-
-            if(filterModel.postKey != null) {
-                PostsData.getInstance().getPost(filterModel.postKey);
-                addMapMarkers(filterModel.postKey);
-            }
-            else {
-                PostsData.getInstance().filterPosts(filterModel);
-                addMapMarkers(null);
-            }
-
-            progressDialogForFiltering.dismiss();
-
-            Log.i("BACKGROUND_TASK", "Finished.");
-        }
-
-        @Override
-        protected List<Post> doInBackground(Void... usersData) {
-            while (isMapReady == false) {} //keep thread alive until callback for getting map ready finished
-            Log.i("BACKGROUND_TASK", "Callback for getting map ready finished");
-
-            List<Post> res;
-
-            if(filterModel.postKey != null) {
-                res = new ArrayList<>();
-                res.add(PostsData.getInstance().getPost(filterModel.postKey));
-            }
-            else {
-                res = PostsData.getInstance().filterPosts(filterModel);
-            }
-
-
-            Log.i("BACKGROUND_TASK", "Filters are applied");
-            return res;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Log.i("BACKGROUND_TASK", "Started.");
-
-            // setup a progress dialog
-            progressDialogForFiltering = new ProgressDialog(getContext());
-            progressDialogForFiltering.setCancelable(false);
-            progressDialogForFiltering.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialogForFiltering.setTitle(R.string.filtering);
-
-            progressDialogForFiltering.show();
-
-            myFilterModel = filterModel;
-
-        }
-
-
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-//            progressDialog.setProgress(values[0]);
-        }
-
-        @Override
-        public void OnUsersListUpdated() {
-//            Log.i("BACKGROUND_TASK", "Callback");
-        }
-
-        @Override
-        public void CurrentUserLoaded() {
-            isLoaded = true;
-        }
-
-        @Override
-        public void OnUserLocationChanged(String userKey) {
-
-        }
-    }
+//    class ApplyFilter extends AsyncTask<Void, Integer, List<Post>> implements UsersListEventListener {
+//
+//        PetFilterModel myFilterModel;
+//
+//        protected boolean isLoaded = false;
+//
+//        @Override
+//        protected void onPostExecute(List<Post> result) {
+//            super.onPostExecute(result);
+//
+//            posts = result;
+//
+//            removeMarkers();
+//
+//            if(filterModel.postKey != null) {
+//                PostsData.getInstance().getPost(filterModel.postKey);
+//                addMapMarkers(filterModel.postKey);
+//            }
+//            else {
+//                PostsData.getInstance().filterPosts(filterModel);
+//                addMapMarkers(null);
+//            }
+//
+//            progressDialogForFiltering.dismiss();
+//
+//            Log.i("BACKGROUND_TASK", "Finished.");
+//        }
+//
+//        @Override
+//        protected List<Post> doInBackground(Void... usersData) {
+//            while (isMapReady == false) {} //keep thread alive until callback for getting map ready finished
+//            Log.i("BACKGROUND_TASK", "Callback for getting map ready finished");
+//
+//            List<Post> res;
+//
+//            if(filterModel.postKey != null) {
+//                res = new ArrayList<>();
+//                res.add(PostsData.getInstance().getPost(filterModel.postKey));
+//            }
+//            else {
+//                res = PostsData.getInstance().filterPosts(filterModel);
+//            }
+//
+//
+//            Log.i("BACKGROUND_TASK", "Filters are applied");
+//            return res;
+//        }
+//
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            Log.i("BACKGROUND_TASK", "Started.");
+//
+//            // setup a progress dialog
+//            progressDialogForFiltering = new ProgressDialog(getContext());
+//            progressDialogForFiltering.setCancelable(false);
+//            progressDialogForFiltering.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//            progressDialogForFiltering.setTitle(R.string.filtering);
+//
+//            progressDialogForFiltering.show();
+//
+//            myFilterModel = filterModel;
+//
+//        }
+//
+//
+//
+//        @Override
+//        protected void onProgressUpdate(Integer... values) {
+//            super.onProgressUpdate(values);
+////            progressDialog.setProgress(values[0]);
+//        }
+//
+//        @Override
+//        public void OnUsersListUpdated() {
+////            Log.i("BACKGROUND_TASK", "Callback");
+//        }
+//
+//        @Override
+//        public void CurrentUserLoaded() {
+//            isLoaded = true;
+//        }
+//
+//        @Override
+//        public void OnUserLocationChanged(String userKey) {
+//
+//        }
+//    }
 
 }
