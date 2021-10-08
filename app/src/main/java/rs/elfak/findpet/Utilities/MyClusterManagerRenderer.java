@@ -16,7 +16,7 @@ import com.google.maps.android.ui.IconGenerator;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.data_models.ClusterMarker;
 
-public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMarker> {
+public abstract class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMarker> {
     public final IconGenerator iconGenerator;
     public final ImageView imageView;
     public final int markerWidth;
@@ -33,13 +33,6 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
         int padding = (int) context.getResources().getDimension(R.dimen.custom_marker_padding);
         imageView.setPadding(padding, padding, padding, padding);
         iconGenerator.setContentView(imageView);
-    }
-
-    @Override
-    protected void onBeforeClusterItemRendered(ClusterMarker item, MarkerOptions markerOptions) {
-        imageView.setImageBitmap(item.iconPicture);
-        Bitmap icon = iconGenerator.makeIcon();
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(item.title);
     }
 
     @Override

@@ -39,6 +39,7 @@ import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
 import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
+import rs.elfak.findpet.Utilities.MyClusterManagerRendererWithPicture;
 import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.PetClusterMarker;
 import rs.elfak.findpet.data_models.PetFilterModel;
@@ -56,7 +57,7 @@ public class PetsFragment extends Fragment {
     //for maps
     private LatLngBounds mMapBoundary;
     private ClusterManager<ClusterMarker> mClusterManager;
-    private MyClusterManagerRenderer mClusterManagerRenderer;
+    private MyClusterManagerRendererWithPicture myClusterManagerRendererWithPicture;
     private ClusterSpinnerAdapter clusterSpinnerAdapter;
     private List<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
     private boolean isMapReady = false; //use for background post
@@ -233,13 +234,13 @@ public class PetsFragment extends Fragment {
             if (mClusterManager == null) {
                 mClusterManager = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
             }
-            if (mClusterManagerRenderer == null) {
-                mClusterManagerRenderer = new MyClusterManagerRenderer(
+            if (myClusterManagerRendererWithPicture == null) {
+                myClusterManagerRendererWithPicture = new MyClusterManagerRendererWithPicture(
                         getActivity(),
                         map,
                         mClusterManager
                 );
-                mClusterManager.setRenderer(mClusterManagerRenderer);
+                mClusterManager.setRenderer(myClusterManagerRendererWithPicture);
             }
 
             //TODO Add filter for friends only

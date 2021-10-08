@@ -43,6 +43,8 @@ import rs.elfak.findpet.Helpers.GetArrayListFromStream;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
+import rs.elfak.findpet.Utilities.MyClusterManagerRendererWithPicture;
+import rs.elfak.findpet.Utilities.MyClusterManagerRendererWithoutImage;
 import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.User;
 import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
@@ -57,8 +59,10 @@ public class FriendsFragment extends Fragment {
 
     //for maps
     private LatLngBounds mMapBoundary;
-    private ClusterManager<ClusterMarker> mClusterManager;
-    private MyClusterManagerRenderer mClusterManagerRenderer;
+    private ClusterManager<ClusterMarker> mClusterManagerWithPicture;
+    private ClusterManager<ClusterMarker> mClusterManagerWithoutPicture;
+    private MyClusterManagerRendererWithoutImage myClusterManagerRendererWithoutPicture;
+    private MyClusterManagerRendererWithPicture myClusterManagerRendererWithPicture;
     private ClusterSpinnerAdapter clusterSpinnerAdapter;
     private List<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
 
@@ -196,59 +200,87 @@ public class FriendsFragment extends Fragment {
 
         if(map != null){
 
-            if(mClusterManager == null){
-                mClusterManager = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
+            if(mClusterManagerWithPicture == null){
+                mClusterManagerWithPicture = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
             }
-            if(mClusterManagerRenderer == null){
-                mClusterManagerRenderer = new MyClusterManagerRenderer(
+            if(mClusterManagerWithoutPicture == null){
+                mClusterManagerWithoutPicture = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
+            }
+            if(myClusterManagerRendererWithPicture == null){
+                myClusterManagerRendererWithPicture = new MyClusterManagerRendererWithPicture(
                         getActivity(),
                         map,
-                        mClusterManager
+                        mClusterManagerWithPicture
                 );
-                mClusterManager.setRenderer(mClusterManagerRenderer);
+                mClusterManagerWithPicture.setRenderer(myClusterManagerRendererWithPicture);
+            }
+            if(myClusterManagerRendererWithoutPicture == null){
+                myClusterManagerRendererWithoutPicture = new MyClusterManagerRendererWithoutImage(
+                        getActivity(),
+                        map,
+                        mClusterManagerWithoutPicture
+                );
+                mClusterManagerWithoutPicture.setRenderer(myClusterManagerRendererWithoutPicture);
             }
 
-            ArrayList<User> friends = new ArrayList<>();
+            boolean isMarkerForCurrentUser = false;
+
+            ArrayList<User> users = new ArrayList<>();
+
             if(userKey != null) {
-                //this if is for adding cluster for current user
-                friends = new ArrayList<>();
-                friends.add(UsersData.getInstance().getUser(userKey));
+                //this if is for adding cluster for current user or when changing location for other users
+                users = new ArrayList<>();
+                users.add(UsersData.getInstance().getUser(userKey));
+
+                if(userKey.equals(currentUser.key)){
+                    isMarkerForCurrentUser = true;
+                }
             }
             else {
-                //add all friends
-                friends = UsersData.getInstance().getFriends(currentUser.key);
-                Log.i("MAPS", "Fetched " + friends.size() + " for adding cluster");
+                //add all users without current user
+                users = UsersData.getInstance().getUsers();
+                users.remove(currentUser);
+                Log.i("MAPS", "Fetched " + users.size() + " for adding cluster");
             }
 
-            for(User friend: friends){
+            for(User user: users){
 
 //                Log.d("CLUSTER_MARKER", "addMapMarkers: location: " + userLocation.getGeo_point().toString());
                 try{
                     String snippet = "";
-                    if(friend.getUser_id().equals(currentUser.getUser_id())) {
+                    if(user.getUser_id().equals(currentUser.getUser_id())) {
                         snippet = "This is you";
                     }
                     else{
-                        snippet = "Determine route to " + friend.username + "?";
+                        snippet = "Determine route to " + user.username + "?";
                     }
 
                     Bitmap avatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar);; // set the default avatar
                     try{
-                        if(friend.profilePicture != null) {
-                            avatar = friend.profilePicture;
+                        if(user.profilePicture != null) {
+                            avatar = user.profilePicture;
                         }
                     }catch (NumberFormatException e){
-                        Log.d("MAPS", "addMapMarkers: no avatar for " + friend.username + ", setting default.");
+                        Log.d("MAPS", "addMapMarkers: no avatar for " + user.username + ", setting default.");
                     }
-                    if(friend.location != null) {
+                    if(user.location != null) {
                         UserClusterMarker newClusterMarker = new UserClusterMarker(
-                                friend.location.getLocation(),
-                                friend.username,
+                                user.location.getLocation(),
+                                user.username,
                                 snippet,
                                 avatar,
-                                friend
+                                user
                         );
-                        mClusterManager.addItem(newClusterMarker);
+
+                        if(isMarkerForCurrentUser || currentUser.friends != null && currentUser.friends.containsKey(user.key)) {
+                            //it's a friend or current user
+                            mClusterManagerWithPicture.addItem(newClusterMarker);
+                        }
+                        else {
+                            mClusterManagerWithoutPicture.addItem(newClusterMarker);
+                        }
+
+
                         mClusterMarkers.add(newClusterMarker);
                     }
 
@@ -258,46 +290,11 @@ public class FriendsFragment extends Fragment {
 
             }
 
-//            for(User friend: friends){
-//
-////                Log.d("CLUSTER_MARKER", "addMapMarkers: location: " + userLocation.getGeo_point().toString());
-//                try{
-//                    String snippet = "";
-//                    if(friend.getUser_id().equals(currentUser.getUser_id())) {
-//                        snippet = "This is you";
-//                    }
-//                    else{
-//                        snippet = "Determine route to " + friend.username + "?";
-//                    }
-//
-//                    Bitmap avatar = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar);; // set the default avatar
-//                    try{
-//                        if(friend.profilePicture != null) {
-//                            avatar = friend.profilePicture;
-//                        }
-//                    }catch (NumberFormatException e){
-//                        Log.d("MAPS", "addMapMarkers: no avatar for " + friend.username + ", setting default.");
-//                    }
-//                    if(friend.location != null) {
-//                        UserClusterMarker newClusterMarker = new UserClusterMarker(
-//                                friend.location.getLocation(),
-//                                friend.username,
-//                                snippet,
-//                                avatar,
-//                                friend
-//                        );
-//                        mClusterManager.addItem(newClusterMarker);
-//                        mClusterMarkers.add(newClusterMarker);
-//                    }
-//
-//                }catch (NullPointerException e){
-//                    Log.e("MAPS", "addMapMarkers: NullPointerException: " + e.getMessage() );
-//                }
-//
-//            }
+            //update view
+            mClusterManagerWithPicture.cluster();
+            mClusterManagerWithoutPicture.cluster();
 
-            mClusterManager.cluster();
-
+            //update list
             clusterSpinnerAdapter.notifyDataSetChanged();
 
             //setCameraView();
@@ -309,40 +306,40 @@ public class FriendsFragment extends Fragment {
     private void removeMarkersWithPicture(@Nullable String userKey) {
         if(map != null) {
 
-            if (mClusterManager == null) {
-                mClusterManager = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
+            ArrayList<User> users = new ArrayList<>();
+            if(userKey != null && userKey.equals(currentUser.key)) {
+                //prevent to delete current user marker by entering here and leaving users list empty
             }
-            if (mClusterManagerRenderer == null) {
-                mClusterManagerRenderer = new MyClusterManagerRenderer(
-                        getActivity(),
-                        map,
-                        mClusterManager
-                );
-                mClusterManager.setRenderer(mClusterManagerRenderer);
-            }
-
-
-            ArrayList<User> friends = new ArrayList<>();
-            if(userKey != null) {
-                //delete only one marker
-                friends.add(UsersData.getInstance().getUser(userKey));
+            else if(userKey != null) {
+                //delete only one marker (used for location update)
+                users.add(UsersData.getInstance().getUser(userKey));
             }
             else {
-                friends = UsersData.getInstance().getFriends(currentUser.key);
+                users = UsersData.getInstance().getUsers();
+                users.remove(currentUser);
             }
 
 
-            Log.i("MAPS", "Delete " + friends.size() + " markers.");
+            Log.i("MAPS", "Delete " + users.size() + " markers.");
 
-            for (User friend: friends) {
-                ClusterMarker cluster = getClusterMarker(friend.key);
+            for (User user: users) {
+                ClusterMarker cluster = getClusterMarker(user.key);
                 if(cluster != null) {
-                    mClusterManager.removeItem(cluster);
+                    if(currentUser.friends != null && currentUser.friends.containsKey(user.key)) {
+                        //it's a friend or current user
+                        mClusterManagerWithPicture.removeItem(cluster);
+                    }
+                    else {
+                        mClusterManagerWithoutPicture.removeItem(cluster);
+                    }
+
                     mClusterMarkers.remove(cluster);
                 }
             }
 
-            mClusterManager.cluster();
+            //update view
+            mClusterManagerWithPicture.cluster();
+            mClusterManagerWithoutPicture.cluster();
 
             clusterSpinnerAdapter.notifyDataSetChanged();
 
@@ -394,20 +391,13 @@ public class FriendsFragment extends Fragment {
     }
 
     private void changeUserLocationOnMap(String userKey) {
-        if(currentUser.friends != null && currentUser.friends.containsKey(userKey)) {
-            //friend -> change cluster marker with picture
-            Log.i("MAPS", "Friend " + UsersData.getInstance().getUser(userKey) + " changed location.");
-            ClusterMarker cluster = getClusterMarker(userKey);
-            if(cluster != null) {
-                Log.i("MAPS", "Friend " + UsersData.getInstance().getUser(userKey) + " deleting location.");
-                removeMarkersWithPicture(userKey);
-                addMapMarkersWithPicture(userKey);
-            }
+        ClusterMarker cluster = getClusterMarker(userKey);
+        if(cluster != null) {
+            Log.i("MAPS", "Friend " + UsersData.getInstance().getUser(userKey) + " deleting location.");
+            removeMarkersWithPicture(userKey);
+            addMapMarkersWithPicture(userKey);
         }
-        else {
-            //not friend -> change basic marker
-            Log.i("MAPS", UsersData.getInstance().getUser(userKey) + " changed location.");
-        }
+
     }
 
     private ClusterMarker getClusterMarker(String userKey) {
