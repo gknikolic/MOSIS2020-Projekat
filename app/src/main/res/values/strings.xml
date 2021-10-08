@@ -49,5 +49,6 @@
     <string name="accept_friend_request">Accept request</string>
     <string name="refuse_friend_request">Refuse request</string>
     <string name="friend_requests">Friend Requests</string>
+    <string name="send_friend_request">Send friend request</string>
 
 </resources>

@@ -36,6 +36,7 @@ import rs.elfak.findpet.Fragments.DashboardFragment;
 import rs.elfak.findpet.Fragments.FriendRequestsFragment;
 import rs.elfak.findpet.Fragments.FriendsFragment;
 import rs.elfak.findpet.Fragments.MessagesFragment;
+import rs.elfak.findpet.Fragments.NotFriendsFragment;
 import rs.elfak.findpet.Fragments.PetsFragment;
 import rs.elfak.findpet.Fragments.UserFragment;
 import rs.elfak.findpet.Helpers.Constants;
@@ -202,6 +203,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Toast.makeText(this, "User not fetched yet. Please wait", Toast.LENGTH_LONG).show();
                     break;
                 }
+            case R.id.nav_not_friends:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new NotFriendsFragment()).commit();
+                break;
             case R.id.nav_log_out:
                 LogOut();
                 break;

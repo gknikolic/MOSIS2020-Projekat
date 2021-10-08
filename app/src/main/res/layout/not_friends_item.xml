@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/fab_margin">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="@dimen/userImage_friendRequest"
+        android:layout_height="@dimen/userImage_friendRequest"
+        app:cardCornerRadius="250dp"
+        app:cardBackgroundColor="@color/white"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/notFriends_profilePictureContainer"
+        android:layout_alignParentStart="true">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="@dimen/userImage_friendRequest"
+            android:layout_height="@dimen/userImage_friendRequest"
+            app:cardCornerRadius="250dp"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:id="@+id/notFriends_profilePicture"
+                android:layout_width="@dimen/userImage_friendRequest"
+                android:layout_height="@dimen/userImage_friendRequest"
+                android:src="@mipmap/ic_launcher_round"
+                android:scaleType="centerCrop"/>
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/notFriends_fullname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/notFriends_profilePictureContainer"
+        android:textSize="20dp"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginLeft="@dimen/fab_margin"/>
+    <TextView
+        android:id="@+id/notFriends_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/notFriends_profilePictureContainer"
+        android:layout_below="@+id/notFriends_fullname"
+        android:textSize="20dp"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginLeft="@dimen/fab_margin"/>
+
+    <Button
+        android:id="@+id/notFriends_btnSendRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/notFriends_profilePictureContainer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:background="@drawable/round_button"
+        android:paddingLeft="@dimen/fragmentPadding"
+        android:paddingRight="@dimen/fragmentPadding"
+        android:text="@string/send_friend_request"
+        android:layout_alignParentEnd="true"/>
+
+</RelativeLayout>
