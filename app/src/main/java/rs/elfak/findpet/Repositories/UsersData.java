@@ -359,10 +359,7 @@ public class UsersData {
             @Override
             public void onSuccess(Void aVoid) {
                 Toast.makeText(context, "Friend request accepted. You have a new friend!", Toast.LENGTH_LONG).show();
-                int myIndex = usersKeyIndexMapping.get(currentUserUID);
-                users.get(myIndex).friends.put(newFriendKey, true);
                 addMeToNewFriendFriends(newFriendKey, context);
-
                 removeFriendRequest(newFriendKey, context);
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -381,8 +378,6 @@ public class UsersData {
                 .setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                int newFriendIndex = usersKeyIndexMapping.get(newFriendKey);
-                users.get(newFriendIndex).friends.put(currentUserUID, true);
                 Log.i("UsersData", "Current user added to friend list of another user");
             }
         }).addOnFailureListener(new OnFailureListener() {

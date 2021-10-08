@@ -12,8 +12,8 @@
             android:title="@string/pets"
             android:icon="@drawable/ic_pets_24"/>
         <item android:id="@+id/nav_message"
-            android:title="@string/message"
-            android:icon="@drawable/ic_baseline_message_24"/>
+            android:title="@string/friend_requests"
+            android:icon="@drawable/ic_baseline_person_24"/>
         <item android:id="@+id/nav_user"
             android:title="@string/user"
             android:icon="@drawable/ic_baseline_supervised_user_circle_24"/>

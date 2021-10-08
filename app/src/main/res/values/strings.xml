@@ -46,5 +46,8 @@
     <string name="pet_result_first_part">"Founded "</string>
     <string name="pet_result_second_part">" pets."</string>
     <string name="radius">Radius</string>
+    <string name="accept_friend_request">Accept request</string>
+    <string name="refuse_friend_request">Refuse request</string>
+    <string name="friend_requests">Friend Requests</string>
 
 </resources>

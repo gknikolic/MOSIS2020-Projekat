@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 import rs.elfak.findpet.Enums.FragmentName;
 import rs.elfak.findpet.Fragments.DashboardFragment;
+import rs.elfak.findpet.Fragments.FriendRequestsFragment;
 import rs.elfak.findpet.Fragments.FriendsFragment;
 import rs.elfak.findpet.Fragments.MessagesFragment;
 import rs.elfak.findpet.Fragments.PetsFragment;
@@ -151,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new DashboardFragment()).commit();
                 break;
             case R.id.nav_message:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MessagesFragment()).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FriendRequestsFragment()).commit();
                 break;
             case R.id.nav_friends:
                 bundle.putSerializable(Constants.USER_KEY, currentUser);
