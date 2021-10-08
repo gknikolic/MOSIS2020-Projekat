@@ -4,16 +4,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -155,19 +158,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new FriendRequestsFragment()).commit();
                 break;
             case R.id.nav_friends:
-                bundle.putSerializable(Constants.USER_KEY, currentUser);
-                bundle.putSerializable(Constants.FREINDS_KEY, users);
-                FriendsFragment friendsFragment = new FriendsFragment();
-                friendsFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, friendsFragment).commit();
-                break;
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                            Constants.LOCATION_PERMISSION_CODE
+                    );
+                } else {
+                    bundle.putSerializable(Constants.USER_KEY, currentUser);
+                    bundle.putSerializable(Constants.FREINDS_KEY, users);
+                    FriendsFragment friendsFragment = new FriendsFragment();
+                    friendsFragment.setArguments(bundle);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, friendsFragment).commit();
+                    break;
+                }
+
             case R.id.nav_pets:
-                bundle.putSerializable(Constants.USER_KEY, currentUser);
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                            Constants.LOCATION_PERMISSION_CODE
+                    );
+                } else {
+                    bundle.putSerializable(Constants.USER_KEY, currentUser);
 //                bundle.putSerializable(Constants.FREINDS_KEY, users);
-                PetsFragment petsFragment = new PetsFragment(new PetFilterModel()); //empty model with nulls (Show all)
-                petsFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
-                break;
+                    PetsFragment petsFragment = new PetsFragment(new PetFilterModel()); //empty model with nulls (Show all)
+                    petsFragment.setArguments(bundle);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
+                    break;
+                }
+
             case R.id.nav_user:
                 if(currentUser != null) {
                     bundle.putSerializable(Constants.USER_KEY, currentUser);

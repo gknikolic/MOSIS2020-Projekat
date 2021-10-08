@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.Exclude;
 
 import java.io.Serializable;
@@ -25,4 +27,10 @@ public class Post implements Serializable {
 
     @Exclude
     public transient Bitmap image;
+
+    @NonNull
+    @Override
+    public String toString() {
+        return caseType.toString() + " " + pet.type.toString() + ": " + pet.name;
+    }
 }

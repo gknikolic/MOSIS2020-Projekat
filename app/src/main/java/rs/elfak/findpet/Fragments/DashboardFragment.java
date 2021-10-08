@@ -1,5 +1,7 @@
 package rs.elfak.findpet.Fragments;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,19 +42,31 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
         adapter.setCommunicator(new FragmentCommunicator() {
             @Override
             public void showPetOnMap(PetFilterModel filterModel) {
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(Constants.USER_KEY, filterModel.userKey);
-                //bundle.putSerializable(Constants.FREINDS_KEY, users);
-                PetsFragment petsFragment = new PetsFragment(filterModel);
-                petsFragment.setArguments(bundle);
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
+                if (ActivityCompat.checkSelfPermission(view.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(view.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            getActivity(),
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                            Constants.LOCATION_PERMISSION_CODE
+                    );
+                } else {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(Constants.USER_KEY, filterModel.userKey);
+                    //bundle.putSerializable(Constants.FREINDS_KEY, users);
+                    PetsFragment petsFragment = new PetsFragment(filterModel);
+                    petsFragment.setArguments(bundle);
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, petsFragment).commit();
+                }
+
             }
         });
 
         postsRecView.setAdapter(adapter);
-        postsRecView.setLayoutManager(new LinearLayoutManager(getContext()));
+        postsRecView.setLayoutManager(new
 
-        return  view;
+                LinearLayoutManager(getContext()));
+
+        return view;
     }
 
     @Override
