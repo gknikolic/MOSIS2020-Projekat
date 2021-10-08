@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/round_input"
-        android:hint="@string/pet_name" />
+        android:hint="@string/pet_name"
+        android:textColor="@color/design_default_color_primary"/>
 
     <Spinner
         android:id="@+id/petsFragment_caseTypeSpinner"
@@ -24,8 +25,17 @@
         android:id="@+id/petsFragment_petTypeSpinner"
         android:layout_width="match_parent"
         android:layout_height="@dimen/spinnerHeight"
-        android:layout_marginTop="@dimen/input_margin"
-        android:layout_below="@+id/petsFragment_caseTypeSpinner"/>
+        android:layout_below="@+id/petsFragment_caseTypeSpinner"
+        android:layout_marginTop="@dimen/input_margin" />
+
+    <NumberPicker
+        android:id="@+id/petsFragment_radius"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/spinnerHeight"
+        android:layout_below="@id/petsFragment_petTypeSpinner"
+        android:background="@drawable/round_input"
+        android:hint="@string/radius"
+        android:textColor="@color/design_default_color_primary"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -33,7 +43,7 @@
         android:orientation="horizontal"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/fab_margin"
-        android:layout_below="@id/petsFragment_petTypeSpinner">
+        android:layout_below="@id/petsFragment_radius">
         <Button
             android:id="@+id/petsFragment_btnApplyFilters"
             android:layout_width="wrap_content"

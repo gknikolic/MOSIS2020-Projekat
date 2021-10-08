@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.app.TaskInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -18,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -29,17 +27,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import rs.elfak.findpet.Adapters.ClusterSpinnerAdapter;
-import rs.elfak.findpet.Enums.CaseType;
+import rs.elfak.findpet.Adapters.CustomSpinnerAdapter;
 import rs.elfak.findpet.Helpers.Constants;
-import rs.elfak.findpet.Helpers.GetArrayListFromStream;
 import rs.elfak.findpet.R;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
@@ -47,7 +41,6 @@ import rs.elfak.findpet.Utilities.MyClusterManagerRendererWithPicture;
 import rs.elfak.findpet.Utilities.MyClusterManagerRendererWithoutImage;
 import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.User;
-import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
 import rs.elfak.findpet.data_models.UserClusterMarker;
 
 public class FriendsFragment extends Fragment {
@@ -63,8 +56,9 @@ public class FriendsFragment extends Fragment {
     private ClusterManager<ClusterMarker> mClusterManagerWithoutPicture;
     private MyClusterManagerRendererWithoutImage myClusterManagerRendererWithoutPicture;
     private MyClusterManagerRendererWithPicture myClusterManagerRendererWithPicture;
-    private ClusterSpinnerAdapter clusterSpinnerAdapter;
     private List<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
+
+    private CustomSpinnerAdapter customSpinnerAdapter;
 
     //widgets
     private Button btnMyMarker;
@@ -108,11 +102,11 @@ public class FriendsFragment extends Fragment {
             public void onClick(View view) {
                 if(showOtherUsersSwitch.isChecked()) {
                     UsersData.getInstance().addUpdateListener(userCallback);
-                    addMapMarkersWithPicture(null);
+                    addMapMarkers(null);
                 }
                 else {
                     UsersData.getInstance().removeUpdateListener(userCallback);
-                    removeMarkersWithPicture(null); //remove all except current user
+                    removeMarkers(null); //remove all except current user
                 }
             }
         });
@@ -172,9 +166,9 @@ public class FriendsFragment extends Fragment {
             initMarkersSpinner();
 
             //on app start add only current user
-            addMapMarkersWithPicture(currentUser.key);
+            addMapMarkers(currentUser.key);
 
-            clusterSpinnerAdapter.notifyDataSetChanged();
+            customSpinnerAdapter.notifyDataSetChanged();
 
             map.setMyLocationEnabled(true);
 
@@ -196,7 +190,7 @@ public class FriendsFragment extends Fragment {
         map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
     }
 
-    private void addMapMarkersWithPicture(@Nullable String userKey) {
+    private void addMapMarkers(@Nullable String userKey) {
 
         if(map != null){
 
@@ -295,7 +289,7 @@ public class FriendsFragment extends Fragment {
             mClusterManagerWithoutPicture.cluster();
 
             //update list
-            clusterSpinnerAdapter.notifyDataSetChanged();
+            customSpinnerAdapter.notifyDataSetChanged();
 
             //setCameraView();
 
@@ -303,7 +297,8 @@ public class FriendsFragment extends Fragment {
         }
     }
 
-    private void removeMarkersWithPicture(@Nullable String userKey) {
+
+    private void removeMarkers(@Nullable String userKey) {
         if(map != null) {
 
             ArrayList<User> users = new ArrayList<>();
@@ -341,7 +336,7 @@ public class FriendsFragment extends Fragment {
             mClusterManagerWithPicture.cluster();
             mClusterManagerWithoutPicture.cluster();
 
-            clusterSpinnerAdapter.notifyDataSetChanged();
+            customSpinnerAdapter.notifyDataSetChanged();
 
             //setCameraView();
         }
@@ -368,17 +363,17 @@ public class FriendsFragment extends Fragment {
     }
 
     private void initMarkersSpinner() {
-        clusterSpinnerAdapter = new ClusterSpinnerAdapter(getContext(),
+        customSpinnerAdapter = new CustomSpinnerAdapter(getContext(),
                 0,
                 mClusterMarkers);
-        markersSpinner.setAdapter(clusterSpinnerAdapter); // Set the custom adapter to the spinner
+        markersSpinner.setAdapter(customSpinnerAdapter); // Set the custom adapter to the spinner
 
         // You can create an anonymous listener to handle the event when is selected an spinner item
 //        markersSpinner.setAdapter(new ArrayAdapter<ClusterMarker>(getContext(), R.layout.spinner_item, mClusterMarkers));
         markersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                ClusterMarker marker = clusterSpinnerAdapter.getItem(i);
+                ClusterMarker marker = customSpinnerAdapter.getItem(i);
                 cameraZoomToLocation(marker.position);
                 Log.i("MOVE MARKER", "selected user: " + marker.toString());
             }
@@ -394,8 +389,8 @@ public class FriendsFragment extends Fragment {
         ClusterMarker cluster = getClusterMarker(userKey);
         if(cluster != null) {
             Log.i("MAPS", "Friend " + UsersData.getInstance().getUser(userKey) + " deleting location.");
-            removeMarkersWithPicture(userKey);
-            addMapMarkersWithPicture(userKey);
+            removeMarkers(userKey);
+            addMapMarkers(userKey);
         }
 
     }

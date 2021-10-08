@@ -77,8 +77,9 @@ public class DashboardFragment extends Fragment implements PostsListEventListene
     public void OnPostsListUpdated() {
         //PostsRecViewAdapter adapter = new PostsRecViewAdapter();
         adapter.setPosts(PostsData.getInstance().getPosts());
+//        adapter.notifyDataSetChanged();
 
-        postsRecView.setAdapter(adapter);
-        postsRecView.setLayoutManager(new LinearLayoutManager(getContext()));
+//        postsRecView.setAdapter(adapter);
+//        postsRecView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 }

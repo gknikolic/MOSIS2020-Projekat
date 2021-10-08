@@ -10,9 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EdgeEffect;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,34 +35,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rs.elfak.findpet.Adapters.SpinnerWithPlaceholderAdapter;
-import rs.elfak.findpet.Adapters.ClusterSpinnerAdapter;
+import rs.elfak.findpet.Adapters.CustomSpinnerAdapter;
 import rs.elfak.findpet.Enums.CaseType;
 import rs.elfak.findpet.Enums.PetType;
 import rs.elfak.findpet.Helpers.Constants;
 import rs.elfak.findpet.R;
+import rs.elfak.findpet.Repositories.PostsData;
 import rs.elfak.findpet.Repositories.UsersData;
 import rs.elfak.findpet.RepositoryEventListeners.UsersListEventListener;
-import rs.elfak.findpet.Utilities.MyClusterManagerRenderer;
 import rs.elfak.findpet.Utilities.MyClusterManagerRendererWithPicture;
 import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.PetClusterMarker;
 import rs.elfak.findpet.data_models.PetFilterModel;
 import rs.elfak.findpet.data_models.Post;
 import rs.elfak.findpet.data_models.User;
+import rs.elfak.findpet.data_models.UserClusterMarker;
 
 public class PetsFragment extends Fragment {
 
     //params from main activity
     private User currentUser;
     private ArrayList<User> users;
-    private ArrayList<Post> posts;
-    private PetFilterModel filterModel;
+    private List<Post> posts = new ArrayList<>();
+    private PetFilterModel filterModel; //always come filled in ctor
+    private boolean fromDashboard = false; //it's used only for first load from dashboard if user clicked on view on map on any post (set in ctor)
 
     //for maps
     private LatLngBounds mMapBoundary;
     private ClusterManager<ClusterMarker> mClusterManager;
     private MyClusterManagerRendererWithPicture myClusterManagerRendererWithPicture;
-    private ClusterSpinnerAdapter clusterSpinnerAdapter;
+    private CustomSpinnerAdapter customSpinnerAdapter;
     private List<ClusterMarker> mClusterMarkers = new ArrayList<>(); //markers on map
     private boolean isMapReady = false; //use for background post
 
@@ -69,11 +75,21 @@ public class PetsFragment extends Fragment {
     private Spinner caseTypeSpinner;
     private Spinner petTypeSpinner;
     private EditText tbxName;
+    private NumberPicker tbxRadius;
     private Button btnApplyFilters;
     private Button btnClearFilters;
+    private TextView resultCount;
+    private Spinner resultSpinner;
+    private ArrayAdapter resultSpinnerAdapter;
+
+    //adapters
+
 
     public PetsFragment(PetFilterModel filterModel) {
         this.filterModel = filterModel;
+        if(filterModel.postKey != null) {
+            this.fromDashboard = true;
+        }
     }
 
 
@@ -104,6 +120,7 @@ public class PetsFragment extends Fragment {
         }
 
         tbxName = (EditText) getView().findViewById((R.id.petsFragment_name));
+        tbxRadius = getView().findViewById((R.id.petsFragment_radius));
 
         //TODO Consider to enable first option
         caseTypeSpinner = getView().findViewById(R.id.petsFragment_caseTypeSpinner);
@@ -168,11 +185,17 @@ public class PetsFragment extends Fragment {
             }
         });
 
+        resultCount = getView().findViewById(R.id.petsFragment_resultCount);
+
+        resultSpinner = getView().findViewById(R.id.petsFragment_petsFoundedSpinner);
+        resultSpinnerAdapter = new ArrayAdapter<Post>(getContext(), R.layout.spinner_item, this.posts);
+        resultSpinner.setAdapter(resultSpinnerAdapter);
+
         btnApplyFilters = (Button) getView().findViewById(R.id.petsFragment_btnApplyFilters);
         btnApplyFilters.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ApplyFilterSync();
             }
         });
 
@@ -181,11 +204,62 @@ public class PetsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 caseTypeSpinner.setSelection(0);
-                caseTypeSpinner.setSelection(0);
+                petTypeSpinner.setSelection(0);
                 tbxName.setText("");
+                tbxRadius.setValue(-1);
+                filterModel = new PetFilterModel();
                 Toast.makeText(getContext(), "Filters cleared", Toast.LENGTH_SHORT).show();
             }
         });
+
+        tbxName.setText(filterModel.name != null ? filterModel.name : "");
+        caseTypeSpinner.setSelection(filterModel.caseType != null ? filterModel.caseType.getValue() + 1 : 0);
+        petTypeSpinner.setSelection(filterModel.petType != null ? filterModel.petType.getValue() + 1 : 0);
+        tbxRadius.setValue(filterModel.radius); //default is -1
+
+        ApplyFilterSync();
+
+
+    }
+
+    private void ApplyFilterSync() {
+        progressDialogForFiltering = new ProgressDialog(getContext());
+        progressDialogForFiltering.setCancelable(false);
+        progressDialogForFiltering.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialogForFiltering.setTitle(R.string.filtering);
+
+        progressDialogForFiltering.show();
+
+
+        if(fromDashboard) {
+            fromDashboard = false; //reset flag... it's used only for first load from dashboard if user clicked on view on map on any post
+        }
+        else {
+            filterModel = new PetFilterModel();
+            filterModel.name = tbxName.getText().toString();
+            filterModel.caseType = caseTypeSpinner.getSelectedItemId() == 0 ? null : CaseType.values()[(int)caseTypeSpinner.getSelectedItemId() - 1];
+            filterModel.petType = petTypeSpinner.getSelectedItemId() == 0 ? null : PetType.values()[(int)petTypeSpinner.getSelectedItemId() - 1];
+            filterModel.radius = tbxRadius.getValue() > 0 ? tbxRadius.getValue() : -1;
+        }
+
+
+        removeMarkers();
+
+        posts = new ArrayList<>();
+
+        if(filterModel.postKey != null) { ///call from dashboard for one post
+            posts.add(PostsData.getInstance().getPost(filterModel.postKey));
+            addMapMarkers(filterModel.postKey);
+        }
+        else {
+            posts = PostsData.getInstance().filterPosts(filterModel);
+            addMapMarkers(null);
+        }
+
+        resultSpinnerAdapter.notifyDataSetChanged();
+        resultCount.setText(getString(R.string.pet_result_first_part) + posts.size() + getString(R.string.pet_result_second_part));
+
+        progressDialogForFiltering.dismiss();
 
     }
 
@@ -204,16 +278,8 @@ public class PetsFragment extends Fragment {
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
 
-            //adding basic marker
-//            LatLng myLocation = currentUser.location.getLocation();
-//            map.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
-//            map.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
-//            cameraZoomToLocation(myLocation);
-
-            //TODO create marker with picture for pets or use basic markers?
-//            addMapMarkers();
-//            initMarkersSpinner();
             progressDialogForMaps.dismiss();
+
 
             Log.i("MAPS", "On map create method");
         }
@@ -227,10 +293,8 @@ public class PetsFragment extends Fragment {
         map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
     }
 
-    private void addMapMarkers() {
-
+    private void addMapMarkers(@Nullable String postKey) {
         if (map != null) {
-
             if (mClusterManager == null) {
                 mClusterManager = new ClusterManager<ClusterMarker>(getActivity().getApplicationContext(), map);
             }
@@ -243,7 +307,16 @@ public class PetsFragment extends Fragment {
                 mClusterManager.setRenderer(myClusterManagerRendererWithPicture);
             }
 
-            //TODO Add filter for friends only
+            //this will come from PostData ... all filtering are there
+//            ArrayList<Post> posts = new ArrayList<>();
+//            if(postKey != null) {
+//                //add only one marker, its called from dashboard on btn view on map
+//                posts.add(PostsData.getInstance().getPost(postKey));
+//            }
+//            else {
+//                posts = PostsData.getInstance().getPosts();
+//            }
+
             for (Post post : posts) {
 
 //                Log.d("CLUSTER_MARKER", "addMapMarkers: location: " + userLocation.getGeo_point().toString());
@@ -276,17 +349,47 @@ public class PetsFragment extends Fragment {
                 }
 
             }
+
+            //update view
             mClusterManager.cluster();
 
             setCameraView();
 
-//            cameraZoomToLocation(currentUser.location.getLocation());
         }
-
     }
 
-    private void clearAllMarkersFromMap() {
-        //TODO Implement
+    private void removeMarkers() {
+        if(map != null) {
+
+            Log.i("MAPS", "Delete " + users.size() + " markers.");
+
+            for (Post post: posts) {
+                ClusterMarker cluster = getClusterMarker(post.key);
+                if(cluster != null) {
+                    mClusterManager.removeItem(cluster);
+                    mClusterMarkers.remove(cluster);
+                }
+            }
+
+            //update view
+            mClusterManager.cluster();
+
+            resultCount.setText(getString(R.string.pet_result_first_part) + posts.size() + getString(R.string.pet_result_second_part));
+            resultSpinnerAdapter.notifyDataSetChanged();
+
+            //setCameraView();
+        }
+    }
+
+    private ClusterMarker getClusterMarker(String postKey) {
+        ClusterMarker cluster = null;
+        for (ClusterMarker marker: mClusterMarkers) {
+            if(((PetClusterMarker) marker).post.key.equals(postKey)){
+                cluster = marker;
+                break;
+            }
+        }
+        return cluster;
     }
 
 
@@ -311,28 +414,52 @@ public class PetsFragment extends Fragment {
     }
 
     //AsyncTask<params, progress, result>
-    class ApplyFilter extends AsyncTask<Void, Integer, Boolean> implements UsersListEventListener {
+    class ApplyFilter extends AsyncTask<Void, Integer, List<Post>> implements UsersListEventListener {
 
         PetFilterModel myFilterModel;
 
         protected boolean isLoaded = false;
 
         @Override
-        protected void onPostExecute(Boolean result) {
+        protected void onPostExecute(List<Post> result) {
             super.onPostExecute(result);
 
+            posts = result;
+
+            removeMarkers();
+
+            if(filterModel.postKey != null) {
+                PostsData.getInstance().getPost(filterModel.postKey);
+                addMapMarkers(filterModel.postKey);
+            }
+            else {
+                PostsData.getInstance().filterPosts(filterModel);
+                addMapMarkers(null);
+            }
+
             progressDialogForFiltering.dismiss();
+
             Log.i("BACKGROUND_TASK", "Finished.");
         }
 
         @Override
-        protected Boolean doInBackground(Void... usersData) {
+        protected List<Post> doInBackground(Void... usersData) {
             while (isMapReady == false) {} //keep thread alive until callback for getting map ready finished
             Log.i("BACKGROUND_TASK", "Callback for getting map ready finished");
 
+            List<Post> res;
+
+            if(filterModel.postKey != null) {
+                res = new ArrayList<>();
+                res.add(PostsData.getInstance().getPost(filterModel.postKey));
+            }
+            else {
+                res = PostsData.getInstance().filterPosts(filterModel);
+            }
+
 
             Log.i("BACKGROUND_TASK", "Filters are applied");
-            return true;
+            return res;
         }
 
         @Override
@@ -351,6 +478,8 @@ public class PetsFragment extends Fragment {
             myFilterModel = filterModel;
 
         }
+
+
 
         @Override
         protected void onProgressUpdate(Integer... values) {

@@ -16,7 +16,7 @@ import rs.elfak.findpet.R;
 import rs.elfak.findpet.data_models.ClusterMarker;
 import rs.elfak.findpet.data_models.UserClusterMarker;
 
-public class ClusterSpinnerAdapter extends ArrayAdapter<ClusterMarker> {
+public class CustomSpinnerAdapter extends ArrayAdapter<ClusterMarker> {
     // Your sent context
     private Context context;
     // Your custom values for the spinner (User)
@@ -24,8 +24,8 @@ public class ClusterSpinnerAdapter extends ArrayAdapter<ClusterMarker> {
 
     LayoutInflater inflator;
 
-    public ClusterSpinnerAdapter(Context context, int textViewResourceId,
-                                 List<ClusterMarker> values) {
+    public CustomSpinnerAdapter(Context context, int textViewResourceId,
+                                List<ClusterMarker> values) {
         super(context, textViewResourceId, values);
         this.context = context;
         this.values = values;

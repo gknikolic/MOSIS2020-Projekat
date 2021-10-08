@@ -43,5 +43,8 @@
     <string name="preparing_map">Preparing map, please wait...</string>
     <string name="filtering">Filtering...</string>
     <string name="show_other_users">Show other users</string>
+    <string name="pet_result_first_part">"Founded "</string>
+    <string name="pet_result_second_part">" pets."</string>
+    <string name="radius">Radius</string>
 
 </resources>
